@@ -1,0 +1,12 @@
+diff -urN ConsoleKit-20070314/pam-ck-connector/Makefile.am ConsoleKit-20070314.new/pam-ck-connector/Makefile.am
+--- ConsoleKit-20070314/pam-ck-connector/Makefile.am	2007-03-14 16:38:00.000000000 +0100
++++ ConsoleKit-20070314.new/pam-ck-connector/Makefile.am	2007-03-14 17:07:29.970401805 +0100
+@@ -7,7 +7,7 @@
+ 	-I$(top_builddir)/libck-connector	\
+ 	$(NULL)
+ 
+-pamlibdir = /lib/security
++pamlibdir = /lib64/security
+ 
+ pamlib_LTLIBRARIES = 				\
+ 	pam_ck_connector.la			\
