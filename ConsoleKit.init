@@ -1,0 +1,79 @@
+#!/bin/sh
+#
+# ConsoleKit: ConsoleKit daemon
+#
+# chkconfig: 345 96 4
+# description: The ConsoleKit maintains a list of sessions
+#
+# processname: console-kit-daemon
+# pidfile: /var/run/ConsoleKit/pid
+#
+
+# Sanity checks.
+[ -x /usr/sbin/console-kit-daemon ] || exit 0
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# so we can rearrange this easily
+processname=console-kit-daemon
+servicename=ConsoleKit
+
+start() {
+	# Check if the service is already running?
+	if [ ! -f /var/lock/subsys/$servicename ]; then
+		msg_starting $servicename
+		daemon $processname
+		RETVAL=$?
+		[ $RETVAL -eq 0 ] && touch /var/lock/subsys/$servicename
+	else
+		msg_already_running $servicename
+	fi
+}
+
+stop() {
+	if [ -f /var/lock/subsys/$servicename ]; then
+		# Stop daemons.
+		msg_stopping $servicename
+		killproc $processname
+		rm -f /var/lock/subsys/$servicename
+	else
+		msg_not_running $servicename
+	fi
+}
+
+RETVAL=0
+# See how we were called.
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  restart)
+	stop
+	start
+	exit $?
+	;;
+  reload)
+  	reload
+	;;
+  force-reload)
+	# if program allows reloading without stopping
+	reload
+
+	# or if it doesn't
+	stop
+	start
+	;;
+  status)
+	status $processname
+	RETVAL=$?
+	;;
+  *)
+	msg_usage "$0 {start|stop|restart|reload|force-reload|status}"
+	exit 3
+esac
+
+exit $RETVAL
