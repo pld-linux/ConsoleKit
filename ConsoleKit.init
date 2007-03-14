@@ -54,25 +54,13 @@ case "$1" in
   restart)
 	stop
 	start
-	exit $?
-	;;
-  reload)
-  	reload
-	;;
-  force-reload)
-	# if program allows reloading without stopping
-	reload
-
-	# or if it doesn't
-	stop
-	start
 	;;
   status)
 	status $processname
 	RETVAL=$?
 	;;
   *)
-	msg_usage "$0 {start|stop|restart|reload|force-reload|status}"
+	msg_usage "$0 {start|stop|restart|status}"
 	exit 3
 esac
 
