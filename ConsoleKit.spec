@@ -34,28 +34,30 @@ Requires:	rc-scripts
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
-I totally don't know what this does, as it has no homepage.
+ConsoleKit is a framework for defining and tracking users, login
+sessions, and seats.
 
 %description -l pl.UTF-8
-Totalnie nei wiem, co ta paczka robi, bo nie ma strony domowej.
+ConsoleKit to szkielet do definiowania i śledzenia użytkowników,
+sesji logowania i siedzib.
 
 %package libs
-Summary:	ConsoleKit libraries
-Summary(pl.UTF-8):Biblioteki ConsoleKit
+Summary:	ConsoleKit library
+Summary(pl.UTF-8):	Biblioteka ConsoleKit
 License:	AFL v2.1 or GPL v2
 Group:		Libraries
 Requires:	dbus-libs >= 0.30
 Conflicts:	ConsoleKit < 0.1-0.20061203.6
 
 %description libs
-ConsoleKit libraries.
+ConsoleKit library.
 
 %description libs -l pl.UTF-8
-Biblioteki ConsoleKit.
+Biblioteka ConsoleKit.
 
 %package devel
 Summary:	Header files for ConsoleKit
-Summary(pl.UTF-8):Pliki nagłówkowe ConsoleKit
+Summary(pl.UTF-8):	Pliki nagłówkowe ConsoleKit
 License:	AFL v2.1 or GPL v2
 Group:		Development/Libraries
 Requires:	%{name}-libs = %{version}-%{release}
@@ -68,17 +70,17 @@ Header files for ConsoleKit.
 Pliki nagłówkowe ConsoleKit.
 
 %package static
-Summary:	Static ConsoleKit libraries
-Summary(pl.UTF-8):Statyczne biblioteki ConsoleKit
+Summary:	Static ConsoleKit library
+Summary(pl.UTF-8):	Statyczna biblioteka ConsoleKit
 License:	AFL v2.1 or GPL v2
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{version}-%{release}
 
 %description static
-Static ConsoleKit libraries.
+Static ConsoleKit library.
 
 %description static -l pl.UTF-8
-Statyczne biblioteki ConsoleKit.
+Statyczna biblioteka ConsoleKit.
 
 %prep
 %setup -q -n %{name}-%{snap}
@@ -123,6 +125,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
+%doc AUTHORS NEWS README TODO
 %attr(755,root,root) %{_bindir}/ck-list-sessions
 %attr(755,root,root) %{_sbindir}/console-kit-daemon
 %attr(755,root,root) %{_libdir}/ck-collect-session-info
