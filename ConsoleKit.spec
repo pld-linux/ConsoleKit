@@ -1,5 +1,4 @@
 # TODO:
-# - check library deps (it seems to link with some X11 libs)
 # - generally check all
 %define	snap	20070314
 Summary:	ConsoleKit for PolicyKit
@@ -15,12 +14,13 @@ Source1:	%{name}.init
 Patch0:		%{name}-pam64.patch
 URL:		http://webcvs.freedesktop.org/hal/
 BuildRequires:	PolicyKit-devel
-BuildRequires:	autoconf >= 2.57
-BuildRequires:	automake
-BuildRequires:	dbus-devel >= 0.60
-BuildRequires:	glib2-devel >= 1:2.6.0
+BuildRequires:	autoconf >= 2.54
+BuildRequires:	automake >= 1:1.7
+BuildRequires:	dbus-glib-devel >= 0.30
+BuildRequires:	glib2-devel >= 1:2.8.0
 BuildRequires:	gtk-doc >= 1.3
-BuildRequires:	libtool
+BuildRequires:	gtk+2-devel >= 2:2.8.0
+BuildRequires:	libtool >= 1.4
 BuildRequires:	pam-devel >= 0.80
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.268
@@ -28,8 +28,8 @@ BuildRequires:	xmlto
 Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name}-libs = %{version}-%{release}
 Requires:	PolicyKit
-Requires:	dbus-libs >= 0.60
-Requires:	glib2 >= 1:2.6.0
+Requires:	dbus-glib >= 0.30
+Requires:	glib2 >= 1:2.8.0
 Requires:	rc-scripts
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -44,6 +44,7 @@ Summary:	ConsoleKit libraries
 Summary(pl.UTF-8):Biblioteki ConsoleKit
 License:	AFL v2.1 or GPL v2
 Group:		Libraries
+Requires:	dbus-libs >= 0.30
 Conflicts:	ConsoleKit < 0.1-0.20061203.6
 
 %description libs
@@ -58,6 +59,7 @@ Summary(pl.UTF-8):Pliki nagłówkowe ConsoleKit
 License:	AFL v2.1 or GPL v2
 Group:		Development/Libraries
 Requires:	%{name}-libs = %{version}-%{release}
+Requires:	dbus-devel >= 0.30
 
 %description devel
 Header files for ConsoleKit.
@@ -125,16 +127,14 @@ fi
 %attr(755,root,root) %{_sbindir}/console-kit-daemon
 %attr(755,root,root) %{_libdir}/ck-collect-session-info
 %attr(755,root,root) %{_libdir}/ck-get-x11-server-pid
-%attr(755,root,root) /%{_lib}/security/pam_ck_connector.so*
+%attr(755,root,root) /%{_lib}/security/pam_ck_connector.so
 %{_sysconfdir}/dbus-1/system.d/ConsoleKit.conf
 %attr(754,root,root) /etc/rc.d/init.d/*
 %{_mandir}/man8/pam_ck_connector*
 
 %files libs
 %defattr(644,root,root,755)
-%doc COPYING
 %attr(755,root,root) %{_libdir}/libck-connector.so.*.*.*
-/%{_lib}/security/pam*
 
 %files devel
 %defattr(644,root,root,755)
