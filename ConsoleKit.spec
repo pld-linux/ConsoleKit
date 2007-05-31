@@ -106,6 +106,8 @@ rm -rf $RPM_BUILD_ROOT
 
 install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/ConsoleKit
 
+rm -f $RPM_BUILD_ROOT/%{_lib}/security/*.{a,la}
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -124,7 +126,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc AUTHORS NEWS README TODO
+%doc AUTHORS ChangeLog NEWS README TODO
 %attr(755,root,root) %{_bindir}/ck-list-sessions
 %attr(755,root,root) %{_sbindir}/console-kit-daemon
 %attr(755,root,root) %{_libdir}/ck-collect-session-info
@@ -140,9 +142,8 @@ fi
 
 %files devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libck-connector*.so
-/%{_lib}/security/*.la
-%{_libdir}/*.la
+%attr(755,root,root) %{_libdir}/libck-connector.so
+%{_libdir}/libck-connector.la
 %dir %{_includedir}/ConsoleKit
 %dir %{_includedir}/ConsoleKit/ck-connector
 %{_includedir}/ConsoleKit/ck-connector/*.h
@@ -150,5 +151,4 @@ fi
 
 %files static
 %defattr(644,root,root,755)
-%{_libdir}/*.a
-/%{_lib}/security/*.a
+%{_libdir}/libck-connector.a
