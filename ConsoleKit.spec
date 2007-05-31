@@ -1,18 +1,16 @@
 # TODO:
 # - generally check all
-%define	snap	20070314
 Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
-Version:	0.1.3
-Release:	0.%{snap}.1
+Version:	0.2.1
+Release:	1
 License:	GPL v2
 Group:		Libraries
-Source0:	%{name}-%{snap}.tar.bz2
-# Source0-md5:	b4f5ce06f5d137ea559afc0461c58a73
+Source0:	http://people.freedesktop.org/~mccann/dist/%{name}-%{version}.tar.gz
+# Source0-md5:	8bf5e83931a8a3c2abcd541781e1554c
 Source1:	%{name}.init
-Patch0:		%{name}-pam64.patch
-URL:		http://webcvs.freedesktop.org/hal/
+URL:		http://gitweb.freedesktop.org/?p=ConsoleKit.git
 BuildRequires:	PolicyKit-devel
 BuildRequires:	autoconf >= 2.54
 BuildRequires:	automake >= 1:1.7
@@ -83,7 +81,7 @@ Static ConsoleKit library.
 Statyczna biblioteka ConsoleKit.
 
 %prep
-%setup -q -n %{name}-%{snap}
+%setup -q
 %ifarch %{x8664}
 %patch0 -p1
 %endif
@@ -96,7 +94,9 @@ Statyczna biblioteka ConsoleKit.
 %{__automake}
 %configure \
 	--enable-pam-module \
-	--enable-docbook-docs
+	--enable-docbook-docs \
+	--enable-static \
+	--with-pam-module-dir=/%{_lib}/security
 %{__make}
 
 %install
@@ -142,7 +142,8 @@ fi
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libck-connector*.so
-%{_libdir}/libck-connector.la
+/%{_lib}/security/*.la
+%{_libdir}/*.la
 %dir %{_includedir}/ConsoleKit
 %dir %{_includedir}/ConsoleKit/ck-connector
 %{_includedir}/ConsoleKit/ck-connector/*.h
@@ -150,4 +151,5 @@ fi
 
 %files static
 %defattr(644,root,root,755)
-%{_libdir}/libck-connector.a
+%{_libdir}/*.a
+/%{_lib}/security/*.a
