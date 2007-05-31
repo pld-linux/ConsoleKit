@@ -10,14 +10,15 @@ Group:		Libraries
 Source0:	http://people.freedesktop.org/~mccann/dist/%{name}-%{version}.tar.gz
 # Source0-md5:	8bf5e83931a8a3c2abcd541781e1554c
 Source1:	%{name}.init
+Patch0:		%{name}-SIGINT.patch
 URL:		http://gitweb.freedesktop.org/?p=ConsoleKit.git
 BuildRequires:	PolicyKit-devel
 BuildRequires:	autoconf >= 2.54
 BuildRequires:	automake >= 1:1.7
 BuildRequires:	dbus-glib-devel >= 0.30
 BuildRequires:	glib2-devel >= 1:2.8.0
-BuildRequires:	gtk-doc >= 1.3
 BuildRequires:	gtk+2-devel >= 2:2.8.0
+BuildRequires:	gtk-doc >= 1.3
 BuildRequires:	libtool >= 1.4
 BuildRequires:	pam-devel >= 0.80
 BuildRequires:	pkgconfig
@@ -36,8 +37,8 @@ ConsoleKit is a framework for defining and tracking users, login
 sessions, and seats.
 
 %description -l pl.UTF-8
-ConsoleKit to szkielet do definiowania i śledzenia użytkowników,
-sesji logowania i siedzib.
+ConsoleKit to szkielet do definiowania i śledzenia użytkowników, sesji
+logowania i siedzib.
 
 %package libs
 Summary:	ConsoleKit library
@@ -82,9 +83,7 @@ Statyczna biblioteka ConsoleKit.
 
 %prep
 %setup -q
-%ifarch %{x8664}
 %patch0 -p1
-%endif
 
 %build
 %{__libtoolize}
