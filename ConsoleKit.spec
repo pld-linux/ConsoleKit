@@ -1,5 +1,3 @@
-# TODO:
-# - generally check all
 Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
