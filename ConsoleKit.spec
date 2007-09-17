@@ -94,7 +94,7 @@ Statyczna biblioteka ConsoleKit.
 	--enable-docbook-docs \
 	--enable-static \
 	--with-pam-module-dir=/%{_lib}/security
-%{__make}
+%{__make} -j1
 
 %install
 rm -rf $RPM_BUILD_ROOT
