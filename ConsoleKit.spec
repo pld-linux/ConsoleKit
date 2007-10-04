@@ -9,6 +9,7 @@ Source0:	http://people.freedesktop.org/~mccann/dist/%{name}-%{version}.tar.gz
 # Source0-md5:	8bf5e83931a8a3c2abcd541781e1554c
 Source1:	%{name}.init
 Patch0:		%{name}-SIGINT.patch
+Patch1:		%{name}-xdm.patch
 URL:		http://gitweb.freedesktop.org/?p=ConsoleKit.git
 BuildRequires:	PolicyKit-devel
 BuildRequires:	autoconf >= 2.54
@@ -82,6 +83,7 @@ Statyczna biblioteka ConsoleKit.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
 %{__libtoolize}

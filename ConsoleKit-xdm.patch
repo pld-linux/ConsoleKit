@@ -1,0 +1,11 @@
+--- ConsoleKit-0.2.1/data/ConsoleKit.conf	2007-03-09 19:13:52.000000000 +0100
++++ /etc/dbus-1/system.d/ConsoleKit.conf	2007-09-26 21:10:07.967025557 +0200
+@@ -37,7 +37,7 @@
+           send_interface="org.freedesktop.DBus.Properties" />
+   </policy>
+ 
+-  <policy user="gdm">
++  <policy user="xdm">
+     <allow send_interface="org.freedesktop.ConsoleKit.Manager"/>
+     <allow send_interface="org.freedesktop.ConsoleKit.Seat"/>
+     <allow send_interface="org.freedesktop.ConsoleKit.Session"/>
