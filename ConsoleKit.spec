@@ -1,31 +1,26 @@
 Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
-Version:	0.2.1
+Version:	0.2.3
 Release:	1
 License:	GPL v2
 Group:		Libraries
 Source0:	http://people.freedesktop.org/~mccann/dist/%{name}-%{version}.tar.gz
-# Source0-md5:	8bf5e83931a8a3c2abcd541781e1554c
+# Source0-md5:	dc4b3194ec583b03747ffc909a5571da
 Source1:	%{name}.init
-Patch0:		%{name}-SIGINT.patch
-Patch1:		%{name}-xdm.patch
-URL:		http://gitweb.freedesktop.org/?p=ConsoleKit.git
-BuildRequires:	PolicyKit-devel
-BuildRequires:	autoconf >= 2.54
-BuildRequires:	automake >= 1:1.7
+URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
+BuildRequires:	autoconf >= 2.60
+BuildRequires:	automake
 BuildRequires:	dbus-glib-devel >= 0.30
 BuildRequires:	glib2-devel >= 1:2.8.0
-BuildRequires:	gtk+2-devel >= 2:2.8.0
-BuildRequires:	gtk-doc >= 1.3
 BuildRequires:	libtool >= 1.4
 BuildRequires:	pam-devel >= 0.80
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRequires:	xmlto
+BuildRequires:	xorg-lib-libX11-devel
 Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name}-libs = %{version}-%{release}
-Requires:	PolicyKit
 Requires:	dbus-glib >= 0.30
 Requires:	glib2 >= 1:2.8.0
 Requires:	rc-scripts
@@ -82,8 +77,6 @@ Statyczna biblioteka ConsoleKit.
 
 %prep
 %setup -q
-%patch0 -p1
-%patch1 -p1
 
 %build
 %{__libtoolize}
@@ -95,7 +88,8 @@ Statyczna biblioteka ConsoleKit.
 	--enable-pam-module \
 	--enable-docbook-docs \
 	--enable-static \
-	--with-pam-module-dir=/%{_lib}/security
+	--with-pam-module-dir=/%{_lib}/security \
+	--with-pid-file=/var/run/console-kit-daemon.pid
 %{__make} -j1
 
 %install
@@ -131,8 +125,12 @@ fi
 %attr(755,root,root) %{_sbindir}/console-kit-daemon
 %attr(755,root,root) %{_libdir}/ck-collect-session-info
 %attr(755,root,root) %{_libdir}/ck-get-x11-server-pid
+%attr(755,root,root) %{_libdir}/ck-get-x11-display-device
 %attr(755,root,root) /%{_lib}/security/pam_ck_connector.so
 %{_sysconfdir}/dbus-1/system.d/ConsoleKit.conf
+%dir %{_sysconfdir}/ConsoleKit
+%dir %{_sysconfdir}/ConsoleKit/seats.d
+%{_sysconfdir}/ConsoleKit/seats.d/00-primary.seat
 %attr(754,root,root) /etc/rc.d/init.d/*
 %{_mandir}/man8/pam_ck_connector*
 
