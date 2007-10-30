@@ -3,27 +3,30 @@ Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.2.3
 Release:	1
-License:	GPL v2
+License:	GPL v2+
 Group:		Libraries
 Source0:	http://people.freedesktop.org/~mccann/dist/%{name}-%{version}.tar.gz
 # Source0-md5:	dc4b3194ec583b03747ffc909a5571da
 Source1:	%{name}.init
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
 BuildRequires:	autoconf >= 2.60
-BuildRequires:	automake
+BuildRequires:	automake >= 1:1.7
 BuildRequires:	dbus-glib-devel >= 0.30
 BuildRequires:	glib2-devel >= 1:2.8.0
+# for <sys/inotify.h>
+BuildRequires:	glibc-devel >= 6:2.4
 BuildRequires:	libtool >= 1.4
 BuildRequires:	pam-devel >= 0.80
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRequires:	xmlto
-BuildRequires:	xorg-lib-libX11-devel
+BuildRequires:	xorg-lib-libX11-devel >= 1.0.0
 Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name}-libs = %{version}-%{release}
 Requires:	dbus-glib >= 0.30
 Requires:	glib2 >= 1:2.8.0
 Requires:	rc-scripts
+Requires:	xorg-lib-libX11 >= 1.0.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
