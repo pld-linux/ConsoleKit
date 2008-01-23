@@ -1,13 +1,12 @@
 Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
-Version:	0.2.3
+Version:	0.2.4
 Release:	1
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://people.freedesktop.org/~mccann/dist/%{name}-%{version}.tar.gz
-# Source0-md5:	dc4b3194ec583b03747ffc909a5571da
-Source1:	%{name}.init
+# Source0-md5:	f153d01ab9baf520cbeed50743abbeda
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.7
@@ -101,22 +100,10 @@ rm -rf $RPM_BUILD_ROOT
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-install %{SOURCE1} $RPM_BUILD_ROOT/etc/rc.d/init.d/ConsoleKit
-
 rm -f $RPM_BUILD_ROOT/%{_lib}/security/*.{a,la}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
-
-%post
-/sbin/chkconfig --add ConsoleKit
-%service ConsoleKit restart
-
-%preun
-if [ "$1" = "0" ]; then
-	%service -q ConsoleKit stop
-	/sbin/chkconfig --del ConsoleKit
-fi
 
 %post	libs -p /sbin/ldconfig
 %postun	libs -p /sbin/ldconfig
@@ -124,17 +111,22 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc AUTHORS ChangeLog NEWS README TODO
+%attr(755,root,root) %{_bindir}/ck-history
 %attr(755,root,root) %{_bindir}/ck-list-sessions
 %attr(755,root,root) %{_sbindir}/console-kit-daemon
 %attr(755,root,root) %{_libdir}/ck-collect-session-info
 %attr(755,root,root) %{_libdir}/ck-get-x11-server-pid
 %attr(755,root,root) %{_libdir}/ck-get-x11-display-device
+%dir %{_libdir}/ConsoleKit
+%dir %{_libdir}/ConsoleKit/scripts
+%attr(755,root,root) %{_libdir}/ConsoleKit/scripts/*
 %attr(755,root,root) /%{_lib}/security/pam_ck_connector.so
+%{_datadir}/PolicyKit/policy/ConsoleKit.policy
+%{_datadir}/dbus-1/system-services/org.freedesktop.ConsoleKit.service
 %{_sysconfdir}/dbus-1/system.d/ConsoleKit.conf
 %dir %{_sysconfdir}/ConsoleKit
 %dir %{_sysconfdir}/ConsoleKit/seats.d
 %{_sysconfdir}/ConsoleKit/seats.d/00-primary.seat
-%attr(754,root,root) /etc/rc.d/init.d/*
 %{_mandir}/man8/pam_ck_connector*
 
 %files libs
