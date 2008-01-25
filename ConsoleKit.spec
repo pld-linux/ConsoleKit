@@ -105,6 +105,11 @@ rm -f $RPM_BUILD_ROOT/%{_lib}/security/*.{a,la}
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+# use triggerun not triggerpostun - old init script is needed to stop service
+%triggerun -- ConsoleKit < 0.2.4
+%service -q ConsoleKit stop
+/sbin/chkconfig --del ConsoleKit
+
 %post	libs -p /sbin/ldconfig
 %postun	libs -p /sbin/ldconfig
 
