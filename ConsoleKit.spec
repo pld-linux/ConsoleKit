@@ -1,12 +1,12 @@
 Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
-Version:	0.2.4
+Version:	0.2.7
 Release:	1
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://people.freedesktop.org/~mccann/dist/%{name}-%{version}.tar.gz
-# Source0-md5:	f153d01ab9baf520cbeed50743abbeda
+# Source0-md5:	8fc8647c5cc2e1158e6b1f5dc36fc107
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.7
@@ -118,6 +118,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc AUTHORS ChangeLog NEWS README TODO
 %attr(755,root,root) %{_bindir}/ck-history
 %attr(755,root,root) %{_bindir}/ck-list-sessions
+%attr(755,root,root) %{_sbindir}/ck-log-system-start
 %attr(755,root,root) %{_sbindir}/console-kit-daemon
 %attr(755,root,root) %{_libdir}/ck-collect-session-info
 %attr(755,root,root) %{_libdir}/ck-get-x11-server-pid
@@ -137,6 +138,7 @@ rm -rf $RPM_BUILD_ROOT
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libck-connector.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libck-connector.so.0
 
 %files devel
 %defattr(644,root,root,755)
