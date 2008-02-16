@@ -124,16 +124,16 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/ck-get-x11-server-pid
 %attr(755,root,root) %{_libdir}/ck-get-x11-display-device
 %dir %{_libdir}/ConsoleKit
+%dir %{_libdir}/ConsoleKit/run-session.d
 %dir %{_libdir}/ConsoleKit/scripts
 %attr(755,root,root) %{_libdir}/ConsoleKit/scripts/*
-%dir %{_libdir}/ConsoleKit/run-session.d
 %attr(755,root,root) /%{_lib}/security/pam_ck_connector.so
 %{_datadir}/PolicyKit/policy/ConsoleKit.policy
 %{_datadir}/dbus-1/system-services/org.freedesktop.ConsoleKit.service
 %{_sysconfdir}/dbus-1/system.d/ConsoleKit.conf
 %dir %{_sysconfdir}/ConsoleKit
-%dir %{_sysconfdir}/ConsoleKit/seats.d
 %dir %{_sysconfdir}/ConsoleKit/run-session.d
+%dir %{_sysconfdir}/ConsoleKit/seats.d
 %{_sysconfdir}/ConsoleKit/seats.d/00-primary.seat
 %{_mandir}/man8/pam_ck_connector*
 %dir /var/run/ConsoleKit
