@@ -126,6 +126,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/ConsoleKit
 %dir %{_libdir}/ConsoleKit/scripts
 %attr(755,root,root) %{_libdir}/ConsoleKit/scripts/*
+%dir %{_libdir}/ConsoleKit/run-session.d
 %attr(755,root,root) /%{_lib}/security/pam_ck_connector.so
 %{_datadir}/PolicyKit/policy/ConsoleKit.policy
 %{_datadir}/dbus-1/system-services/org.freedesktop.ConsoleKit.service
