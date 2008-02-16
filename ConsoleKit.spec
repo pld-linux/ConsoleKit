@@ -132,8 +132,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/dbus-1/system.d/ConsoleKit.conf
 %dir %{_sysconfdir}/ConsoleKit
 %dir %{_sysconfdir}/ConsoleKit/seats.d
+%dir %{_sysconfdir}/ConsoleKit/run-session.d
 %{_sysconfdir}/ConsoleKit/seats.d/00-primary.seat
 %{_mandir}/man8/pam_ck_connector*
+%dir /var/run/ConsoleKit
 
 %files libs
 %defattr(644,root,root,755)
