@@ -1,13 +1,14 @@
 Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
-Version:	0.2.7
+Version:	0.2.10
 Release:	1
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://people.freedesktop.org/~mccann/dist/%{name}-%{version}.tar.gz
-# Source0-md5:	8fc8647c5cc2e1158e6b1f5dc36fc107
+# Source0-md5:	b85c2333a8fe31c0d3f29caa14716634
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
+BuildRequires:	PolicyKit-devel >= 0.7
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.7
 BuildRequires:	dbus-glib-devel >= 0.30
@@ -117,8 +118,11 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc AUTHORS ChangeLog NEWS README TODO
 %attr(755,root,root) %{_bindir}/ck-history
+%attr(755,root,root) %{_bindir}/ck-launch-session
 %attr(755,root,root) %{_bindir}/ck-list-sessions
+%attr(755,root,root) %{_sbindir}/ck-log-system-restart
 %attr(755,root,root) %{_sbindir}/ck-log-system-start
+%attr(755,root,root) %{_sbindir}/ck-log-system-stop
 %attr(755,root,root) %{_sbindir}/console-kit-daemon
 %attr(755,root,root) %{_libdir}/ck-collect-session-info
 %attr(755,root,root) %{_libdir}/ck-get-x11-server-pid
@@ -137,6 +141,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/ConsoleKit/seats.d/00-primary.seat
 %{_mandir}/man8/pam_ck_connector*
 %dir /var/run/ConsoleKit
+%attr(750,root,root) %dir /var/log/ConsoleKit
 
 %files libs
 %defattr(644,root,root,755)
