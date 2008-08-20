@@ -142,6 +142,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man8/pam_ck_connector*
 %dir /var/run/ConsoleKit
 %attr(750,root,root) %dir /var/log/ConsoleKit
+%dir %{_localstatedir}/log/ConsoleKit
 
 %files libs
 %defattr(644,root,root,755)
