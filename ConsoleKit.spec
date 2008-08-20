@@ -1,17 +1,18 @@
 Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
-Version:	0.2.10
+Version:	0.3.0
 Release:	1
 License:	GPL v2+
 Group:		Libraries
-Source0:	http://people.freedesktop.org/~mccann/dist/%{name}-%{version}.tar.gz
-# Source0-md5:	b85c2333a8fe31c0d3f29caa14716634
+Source0:	http://people.freedesktop.org/~mccann/dist/%{name}-%{version}.tar.bz2
+# Source0-md5:	43b02a52212330b54cfb34c4044d9ce0
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
 BuildRequires:	PolicyKit-devel >= 0.7
 BuildRequires:	autoconf >= 2.60
-BuildRequires:	automake >= 1:1.7
+BuildRequires:	automake >= 1:1.9
 BuildRequires:	dbus-glib-devel >= 0.30
+BuildRequires:	gettext-devel
 BuildRequires:	glib2-devel >= 1:2.8.0
 # for <sys/inotify.h>
 BuildRequires:	glibc-devel >= 6:2.4
@@ -21,6 +22,7 @@ BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRequires:	xmlto
 BuildRequires:	xorg-lib-libX11-devel >= 1.0.0
+BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name}-libs = %{version}-%{release}
 Requires:	dbus-glib >= 0.30
@@ -92,7 +94,7 @@ Statyczna biblioteka ConsoleKit.
 	--enable-docbook-docs \
 	--enable-static \
 	--with-pam-module-dir=/%{_lib}/security \
-	--with-pid-file=/var/run/console-kit-daemon.pid
+	--with-pid-file=%{_localstatedir}/run/console-kit-daemon.pid
 %{__make} -j1
 
 %install
@@ -127,21 +129,24 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/ck-collect-session-info
 %attr(755,root,root) %{_libdir}/ck-get-x11-server-pid
 %attr(755,root,root) %{_libdir}/ck-get-x11-display-device
-%dir %{_libdir}/ConsoleKit
-%dir %{_libdir}/ConsoleKit/run-session.d
-%dir %{_libdir}/ConsoleKit/scripts
-%attr(755,root,root) %{_libdir}/ConsoleKit/scripts/*
+%dir %{_prefix}/lib/ConsoleKit
+%dir %{_prefix}/lib/ConsoleKit/run-session.d
+%dir %{_prefix}/lib/ConsoleKit/scripts
+%attr(755,root,root) %{_prefix}/lib/ConsoleKit/scripts/*
 %attr(755,root,root) /%{_lib}/security/pam_ck_connector.so
-%{_datadir}/PolicyKit/policy/ConsoleKit.policy
+%{_datadir}/PolicyKit/policy/org.freedesktop.consolekit.policy
 %{_datadir}/dbus-1/system-services/org.freedesktop.ConsoleKit.service
+%{_datadir}/dbus-1/interfaces/org.freedesktop.ConsoleKit.Manager.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.ConsoleKit.Seat.xml
+%{_datadir}/dbus-1/interfaces/org.freedesktop.ConsoleKit.Session.xml
 %{_sysconfdir}/dbus-1/system.d/ConsoleKit.conf
 %dir %{_sysconfdir}/ConsoleKit
 %dir %{_sysconfdir}/ConsoleKit/run-session.d
 %dir %{_sysconfdir}/ConsoleKit/seats.d
 %{_sysconfdir}/ConsoleKit/seats.d/00-primary.seat
-%{_mandir}/man8/pam_ck_connector*
-%dir /var/run/ConsoleKit
-%attr(750,root,root) %dir /var/log/ConsoleKit
+%{_mandir}/man8/pam_ck_connector.8*
+%dir %{_localstatedir}/run/ConsoleKit
+%dir %{_localstatedir}/log/ConsoleKit
 
 %files libs
 %defattr(644,root,root,755)
