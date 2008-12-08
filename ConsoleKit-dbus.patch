@@ -1,0 +1,14 @@
+--- data/ConsoleKit.conf~	2008-04-19 07:39:49.000000000 +0200
++++ data/ConsoleKit.conf	2008-12-08 17:25:21.910537449 +0100
+@@ -7,6 +7,11 @@
+   <policy user="root">
+     <allow own="org.freedesktop.ConsoleKit"/>
+
++    <!-- Allow receiving of messages to ConsoleKit interfaces -->
++    <allow receive_interface="org.freedesktop.ConsoleKit.Manager"/>
++    <allow receive_interface="org.freedesktop.ConsoleKit.Seat"/>
++    <allow receive_interface="org.freedesktop.ConsoleKit.Session"/>
++
+     <!-- Allow all methods on interfaces -->
+     <allow send_interface="org.freedesktop.ConsoleKit.Manager"/>
+     <allow send_interface="org.freedesktop.ConsoleKit.Seat"/>
