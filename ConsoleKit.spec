@@ -2,11 +2,12 @@ Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.3.0
-Release:	1
+Release:	2
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://people.freedesktop.org/~mccann/dist/%{name}-%{version}.tar.bz2
 # Source0-md5:	43b02a52212330b54cfb34c4044d9ce0
+Patch0:		%{name}-dbus.patch
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
 BuildRequires:	PolicyKit-devel >= 0.7
 BuildRequires:	autoconf >= 2.60
@@ -82,6 +83,7 @@ Statyczna biblioteka ConsoleKit.
 
 %prep
 %setup -q
+%patch0 -p0
 
 %build
 %{__libtoolize}
