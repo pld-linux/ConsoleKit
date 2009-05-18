@@ -1,14 +1,7 @@
-From e0d9cc359b3099307067107b59ec691418e280b8 Mon Sep 17 00:00:00 2001
-From: Colin Walters <walters@verbum.org>
-Date: Sun, 18 Jan 2009 18:06:37 +0000
-Subject: fix up D-Bus permissions
-
----
-diff --git a/data/ConsoleKit.conf b/data/ConsoleKit.conf
-index 710d32a..ccbc500 100644
---- a/data/ConsoleKit.conf
-+++ b/data/ConsoleKit.conf
-@@ -8,88 +8,128 @@
+diff -urN ConsoleKit-0.3.0/data/ConsoleKit.conf ConsoleKit-0.3.0.new/data/ConsoleKit.conf
+--- ConsoleKit-0.3.0/data/ConsoleKit.conf	2008-04-19 07:39:49.000000000 +0200
++++ ConsoleKit-0.3.0.new/data/ConsoleKit.conf	2009-05-18 13:41:52.525113368 +0200
+@@ -8,88 +8,131 @@
      <allow own="org.freedesktop.ConsoleKit"/>
  
      <!-- Allow all methods on interfaces -->
@@ -55,6 +48,9 @@ index 710d32a..ccbc500 100644
 +           send_interface="org.freedesktop.ConsoleKit.Manager"
             send_member="GetSeats"/>
 -    <allow send_interface="org.freedesktop.ConsoleKit.Manager"
++    <allow send_destination="org.freedesktop.ConsoleKit"
++           send_interface="org.freedesktop.ConsoleKit.Manager"
++           send_member="GetSessions"/>
 +    <allow send_destination="org.freedesktop.ConsoleKit"
 +           send_interface="org.freedesktop.ConsoleKit.Manager"
             send_member="GetSessionForCookie"/>
@@ -175,7 +171,5 @@ index 710d32a..ccbc500 100644
 +    <allow send_destination="org.freedesktop.ConsoleKit"
 +           send_interface="org.freedesktop.ConsoleKit.Session"
             send_member="GetIdleSinceHint"/>
-     <allow send_interface="org.freedesktop.ConsoleKit.Session"
-            send_member="SetIdleHint"/>
---
-cgit v0.8.2
+   </policy>
+ 
