@@ -2,7 +2,7 @@ Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.3.0
-Release:	4
+Release:	5
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://people.freedesktop.org/~mccann/dist/%{name}-%{version}.tar.bz2
@@ -131,8 +131,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/ck-collect-session-info
 %attr(755,root,root) %{_libdir}/ck-get-x11-server-pid
 %attr(755,root,root) %{_libdir}/ck-get-x11-display-device
-%dir %{_prefix}/lib/ConsoleKit
-%dir %{_prefix}/lib/ConsoleKit/run-session.d
 %dir %{_prefix}/lib/ConsoleKit/scripts
 %attr(755,root,root) %{_prefix}/lib/ConsoleKit/scripts/*
 %attr(755,root,root) /%{_lib}/security/pam_ck_connector.so
