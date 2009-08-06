@@ -2,12 +2,13 @@ Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.3.0
-Release:	5
+Release:	6
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://people.freedesktop.org/~mccann/dist/%{name}-%{version}.tar.bz2
 # Source0-md5:	43b02a52212330b54cfb34c4044d9ce0
 Patch0:		%{name}-dbus.patch
+Patch1:		%{name}-skip_xmlto_validation.patch
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
 BuildRequires:	PolicyKit-devel >= 0.7
 BuildRequires:	autoconf >= 2.60
@@ -27,6 +28,7 @@ BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name}-libs = %{version}-%{release}
 Requires:	dbus-glib >= 0.30
+Requires:	filesystem >= 3.0-25
 Requires:	glib2 >= 1:2.8.0
 Requires:	rc-scripts
 Requires:	xorg-lib-libX11 >= 1.0.0
@@ -84,6 +86,7 @@ Statyczna biblioteka ConsoleKit.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
 %{__libtoolize}
@@ -92,8 +95,8 @@ Statyczna biblioteka ConsoleKit.
 %{__autoheader}
 %{__automake}
 %configure \
-	--enable-pam-module \
 	--enable-docbook-docs \
+	--enable-pam-module \
 	--enable-static \
 	--with-pam-module-dir=/%{_lib}/security \
 	--with-pid-file=%{_localstatedir}/run/console-kit-daemon.pid
