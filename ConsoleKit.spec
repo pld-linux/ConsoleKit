@@ -1,16 +1,14 @@
 Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
-Version:	0.3.0
-Release:	6
+Version:	0.3.1
+Release:	1
 License:	GPL v2+
 Group:		Libraries
-Source0:	http://people.freedesktop.org/~mccann/dist/%{name}-%{version}.tar.bz2
-# Source0-md5:	43b02a52212330b54cfb34c4044d9ce0
-Patch0:		%{name}-dbus.patch
-Patch1:		%{name}-skip_xmlto_validation.patch
+Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.bz2
+# Source0-md5:	3ee89345f610c462806aaaae9a997683
+Patch0:		%{name}-fixes.patch
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
-BuildRequires:	PolicyKit-devel >= 0.7
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.9
 BuildRequires:	dbus-glib-devel >= 0.30
@@ -21,6 +19,7 @@ BuildRequires:	glibc-devel >= 6:2.4
 BuildRequires:	libtool >= 1.4
 BuildRequires:	pam-devel >= 0.80
 BuildRequires:	pkgconfig
+BuildRequires:	polkit-devel >= 0.92
 BuildRequires:	rpmbuild(macros) >= 1.268
 BuildRequires:	xmlto
 BuildRequires:	xorg-lib-libX11-devel >= 1.0.0
@@ -86,7 +85,6 @@ Statyczna biblioteka ConsoleKit.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
 
 %build
 %{__libtoolize}
@@ -137,7 +135,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_prefix}/lib/ConsoleKit/scripts
 %attr(755,root,root) %{_prefix}/lib/ConsoleKit/scripts/*
 %attr(755,root,root) /%{_lib}/security/pam_ck_connector.so
-%{_datadir}/PolicyKit/policy/org.freedesktop.consolekit.policy
+%{_datadir}/polkit-1/actions/org.freedesktop.consolekit.policy
 %{_datadir}/dbus-1/system-services/org.freedesktop.ConsoleKit.service
 %{_datadir}/dbus-1/interfaces/org.freedesktop.ConsoleKit.Manager.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.ConsoleKit.Seat.xml
