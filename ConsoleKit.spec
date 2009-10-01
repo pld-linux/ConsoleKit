@@ -1,16 +1,13 @@
 Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
-Version:	0.3.1
+Version:	0.4.1
 Release:	1
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.bz2
-# Source0-md5:	3ee89345f610c462806aaaae9a997683
-Patch0:		%{name}-fixes.patch
+# Source0-md5:	48eda4483cc97841d5f88e8e003eb6d7
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
-BuildRequires:	autoconf >= 2.60
-BuildRequires:	automake >= 1:1.9
 BuildRequires:	dbus-glib-devel >= 0.30
 BuildRequires:	gettext-devel
 BuildRequires:	glib2-devel >= 1:2.8.0
@@ -84,20 +81,15 @@ Statyczna biblioteka ConsoleKit.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
-%{__libtoolize}
-%{__aclocal}
-%{__autoconf}
-%{__autoheader}
-%{__automake}
 %configure \
 	--enable-docbook-docs \
 	--enable-pam-module \
 	--enable-static \
 	--with-pam-module-dir=/%{_lib}/security \
 	--with-pid-file=%{_localstatedir}/run/console-kit-daemon.pid
+
 %{__make} -j1
 
 %install
