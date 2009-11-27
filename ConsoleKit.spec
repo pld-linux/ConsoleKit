@@ -9,6 +9,7 @@ Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.
 # Source0-md5:	48eda4483cc97841d5f88e8e003eb6d7
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
 BuildRequires:	dbus-glib-devel >= 0.30
+BuildRequires:	docbook-dtd412-xml
 BuildRequires:	gettext-devel
 BuildRequires:	glib2-devel >= 1:2.8.0
 # for <sys/inotify.h>
