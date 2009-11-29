@@ -2,7 +2,7 @@ Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.4.1
-Release:	2
+Release:	3
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.bz2
@@ -23,6 +23,7 @@ BuildRequires:	xmlto
 BuildRequires:	xorg-lib-libX11-devel >= 1.0.0
 BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
+Requires:	%{name}-dirs = %{version}-%{release}
 Requires:	%{name}-libs = %{version}-%{release}
 Requires:	dbus-glib >= 0.30
 Requires:	filesystem >= 3.0-25
@@ -52,6 +53,19 @@ ConsoleKit library.
 
 %description libs -l pl.UTF-8
 Biblioteka ConsoleKit.
+
+%package dirs
+Summary:	ConsoleKit directories
+Summary(pl.UTF-8):	Katalogi ConsoleKit
+License:	AFL v2.1 or GPL v2
+Group:		Libraries
+Conflicts:	ConsoleKit < 0.4.1-2
+
+%description dirs
+ConsoleKit directories.
+
+%description dirs -l pl.UTF-8
+Katalogi ConsoleKit.
 
 %package devel
 Summary:	Header files for ConsoleKit
@@ -125,9 +139,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/ck-collect-session-info
 %attr(755,root,root) %{_libdir}/ck-get-x11-server-pid
 %attr(755,root,root) %{_libdir}/ck-get-x11-display-device
-%dir %{_prefix}/lib/ConsoleKit/run-session.d
-%dir %{_prefix}/lib/ConsoleKit/run-seat.d
-%dir %{_prefix}/lib/ConsoleKit/scripts
 %attr(755,root,root) %{_prefix}/lib/ConsoleKit/scripts/*
 %attr(755,root,root) /%{_lib}/security/pam_ck_connector.so
 %{_datadir}/polkit-1/actions/org.freedesktop.consolekit.policy
@@ -136,19 +147,25 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dbus-1/interfaces/org.freedesktop.ConsoleKit.Seat.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.ConsoleKit.Session.xml
 %{_sysconfdir}/dbus-1/system.d/ConsoleKit.conf
-%dir %{_sysconfdir}/ConsoleKit
-%dir %{_sysconfdir}/ConsoleKit/run-session.d
-%dir %{_sysconfdir}/ConsoleKit/run-seat.d
-%dir %{_sysconfdir}/ConsoleKit/seats.d
 %{_sysconfdir}/ConsoleKit/seats.d/00-primary.seat
 %{_mandir}/man8/pam_ck_connector.8*
-%dir %{_localstatedir}/run/ConsoleKit
-%dir %{_localstatedir}/log/ConsoleKit
 
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libck-connector.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libck-connector.so.0
+
+%files dirs
+%defattr(644,root,root,755)
+%dir %{_sysconfdir}/ConsoleKit
+%dir %{_sysconfdir}/ConsoleKit/run-session.d
+%dir %{_sysconfdir}/ConsoleKit/run-seat.d
+%dir %{_sysconfdir}/ConsoleKit/seats.d
+%dir %{_prefix}/lib/ConsoleKit/run-session.d
+%dir %{_prefix}/lib/ConsoleKit/run-seat.d
+%dir %{_prefix}/lib/ConsoleKit/scripts
+%dir %{_localstatedir}/run/ConsoleKit
+%dir %{_localstatedir}/log/ConsoleKit
 
 %files devel
 %defattr(644,root,root,755)
