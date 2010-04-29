@@ -2,7 +2,7 @@ Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.4.1
-Release:	4
+Release:	5
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.bz2
@@ -31,6 +31,7 @@ Requires:	filesystem >= 3.0-25
 Requires:	glib2 >= 1:2.8.0
 Requires:	rc-scripts
 Requires:	xorg-lib-libX11 >= 1.0.0
+Suggests:	udev-acl
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
