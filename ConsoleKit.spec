@@ -1,13 +1,12 @@
 Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
-Version:	0.4.1
-Release:	5
+Version:	0.4.2
+Release:	1
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.bz2
-# Source0-md5:	48eda4483cc97841d5f88e8e003eb6d7
-Patch0:		%{name}-reorder-initialization.patch
+# Source0-md5:	285acb35bfcb2b8dc21c6071e6f6e116
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
 BuildRequires:	dbus-glib-devel >= 0.30
 BuildRequires:	docbook-dtd412-xml
@@ -98,10 +97,10 @@ Statyczna biblioteka ConsoleKit.
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 %configure \
+	--disable-silent-rules \
 	--enable-docbook-docs \
 	--enable-pam-module \
 	--enable-static \
