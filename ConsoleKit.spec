@@ -1,20 +1,19 @@
 Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
-Version:	0.4.3
+Version:	0.4.4
 Release:	1
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.bz2
-# Source0-md5:	4c39c6eacc75334b890f21eead1d2945
+# Source0-md5:	b57eb18eae8c4d3631d5f4f030218a29
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
-BuildRequires:	dbus-glib-devel >= 0.30
+BuildRequires:	dbus-glib-devel >= 0.82
 BuildRequires:	docbook-dtd412-xml
 BuildRequires:	gettext-devel
-BuildRequires:	glib2-devel >= 1:2.8.0
+BuildRequires:	glib2-devel >= 1:2.14.0
 # for <sys/inotify.h>
 BuildRequires:	glibc-devel >= 6:2.4
-BuildRequires:	libtool >= 1.4
 BuildRequires:	pam-devel >= 0.80
 BuildRequires:	pkgconfig
 BuildRequires:	polkit-devel >= 0.92
@@ -25,9 +24,9 @@ BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name}-dirs = %{version}-%{release}
 Requires:	%{name}-libs = %{version}-%{release}
-Requires:	dbus-glib >= 0.30
+Requires:	dbus-glib >= 0.82
 Requires:	filesystem >= 3.0-25
-Requires:	glib2 >= 1:2.8.0
+Requires:	glib2 >= 1:2.14.0
 Requires:	rc-scripts
 Requires:	xorg-lib-libX11 >= 1.0.0
 Suggests:	udev-acl
