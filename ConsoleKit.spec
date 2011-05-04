@@ -1,12 +1,12 @@
 Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
-Version:	0.4.4
+Version:	0.4.5
 Release:	1
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.bz2
-# Source0-md5:	b57eb18eae8c4d3631d5f4f030218a29
+# Source0-md5:	f2657f93761206922d558471a936fbc3
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
 BuildRequires:	dbus-glib-devel >= 0.82
 BuildRequires:	docbook-dtd412-xml
