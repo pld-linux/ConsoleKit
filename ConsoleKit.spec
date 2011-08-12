@@ -2,7 +2,7 @@ Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.4.5
-Release:	1
+Release:	2
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.bz2
@@ -28,7 +28,6 @@ Requires:	dbus-glib >= 0.82
 Requires:	filesystem >= 3.0-25
 Requires:	glib2 >= 1:2.14.0
 Requires:	rc-scripts
-Requires:	xorg-lib-libX11 >= 1.0.0
 Suggests:	udev-acl
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -94,6 +93,18 @@ Static ConsoleKit library.
 %description static -l pl.UTF-8
 Statyczna biblioteka ConsoleKit.
 
+%package x11
+Summary:	X11-requiring add-ons for ConsoleKit
+License:	GPL v2+
+Group:		X11/Applications
+Requires:	%{name} = %{version}-%{release}
+Requires:	xorg-lib-libX11 >= 1.0.0
+
+%description x11
+ConsoleKit contains some tools that require Xlib to be installed,
+those are in this separate package so server systems need not install
+X.
+
 %prep
 %setup -q
 
@@ -138,8 +149,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sbindir}/ck-log-system-stop
 %attr(755,root,root) %{_sbindir}/console-kit-daemon
 %attr(755,root,root) %{_libdir}/ck-collect-session-info
-%attr(755,root,root) %{_libdir}/ck-get-x11-server-pid
-%attr(755,root,root) %{_libdir}/ck-get-x11-display-device
 %attr(755,root,root) %{_prefix}/lib/ConsoleKit/scripts/*
 %attr(755,root,root) /%{_lib}/security/pam_ck_connector.so
 %{_datadir}/polkit-1/actions/org.freedesktop.consolekit.policy
@@ -147,7 +156,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dbus-1/interfaces/org.freedesktop.ConsoleKit.Manager.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.ConsoleKit.Seat.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.ConsoleKit.Session.xml
-%{_sysconfdir}/dbus-1/system.d/ConsoleKit.conf
+/etc/dbus-1/system.d/ConsoleKit.conf
 %{_sysconfdir}/ConsoleKit/seats.d/00-primary.seat
 %{_mandir}/man8/pam_ck_connector.8*
 
@@ -180,3 +189,8 @@ rm -rf $RPM_BUILD_ROOT
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/libck-connector.a
+
+%files x11
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/ck-get-x11-server-pid
+%attr(755,root,root) %{_libdir}/ck-get-x11-display-device
