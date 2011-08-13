@@ -94,16 +94,18 @@ Static ConsoleKit library.
 Statyczna biblioteka ConsoleKit.
 
 %package x11
-Summary:	X11-requiring add-ons for ConsoleKit
+Summary:	X11 session support for ConsoleKit
+Summary(pl.UTF-8):	Obsługa sesji X11 dla pakietu ConsoleKit
 License:	GPL v2+
 Group:		X11/Applications
 Requires:	%{name} = %{version}-%{release}
 Requires:	xorg-lib-libX11 >= 1.0.0
 
 %description x11
-ConsoleKit contains some tools that require Xlib to be installed,
-those are in this separate package so server systems need not install
-X.
+X11 session support utilities for ConsoleKit.
+
+%description x11 -l pl.UTF-8
+Narzędzia obsługujące sesje X11 dla pakietu ConsoleKit.
 
 %prep
 %setup -q
