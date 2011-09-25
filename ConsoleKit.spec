@@ -27,7 +27,7 @@ Requires:	%{name}-libs = %{version}-%{release}
 Requires:	dbus-glib >= 0.82
 Requires:	filesystem >= 3.0-25
 Requires:	glib2 >= 1:2.14.0
-Requires:	rc-scripts
+Requires:	rc-scripts >= 0.4.3.0
 Suggests:	udev-acl
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
