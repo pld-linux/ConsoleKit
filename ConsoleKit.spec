@@ -2,7 +2,7 @@ Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.4.5
-Release:	3
+Release:	4
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.bz2
@@ -107,6 +107,14 @@ X11 session support utilities for ConsoleKit.
 %description x11 -l pl.UTF-8
 Narzędzia obsługujące sesje X11 dla pakietu ConsoleKit.
 
+%package systemd
+Summary:	systemd units for ConsoleKit
+Group:		Daemons
+Requires:	%{name} = %{version}-%{release}
+
+%description systemd
+systemd units for ConsoleKit.
+
 %prep
 %setup -q
 
@@ -117,7 +125,8 @@ Narzędzia obsługujące sesje X11 dla pakietu ConsoleKit.
 	--enable-pam-module \
 	--enable-static \
 	--with-pam-module-dir=/%{_lib}/security \
-	--with-pid-file=%{_localstatedir}/run/console-kit-daemon.pid
+	--with-pid-file=%{_localstatedir}/run/console-kit-daemon.pid \
+	--with-systemdsystemunitdir=/lib/systemd/system
 
 %{__make} -j1
 
@@ -204,3 +213,15 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/ck-get-x11-server-pid
 %attr(755,root,root) %{_libdir}/ck-get-x11-display-device
+
+%files systemd
+%defattr(644,root,root,755)
+/lib/systemd/system/basic.target.wants/console-kit-log-system-start.service
+/lib/systemd/system/console-kit-daemon.service
+/lib/systemd/system/console-kit-log-system-restart.service
+/lib/systemd/system/console-kit-log-system-start.service
+/lib/systemd/system/console-kit-log-system-stop.service
+/lib/systemd/system/halt.target.wants/console-kit-log-system-stop.service
+/lib/systemd/system/kexec.target.wants/console-kit-log-system-restart.service
+/lib/systemd/system/poweroff.target.wants/console-kit-log-system-stop.service
+/lib/systemd/system/reboot.target.wants/console-kit-log-system-restart.service
