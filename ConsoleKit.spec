@@ -17,7 +17,7 @@ BuildRequires:	glibc-devel >= 6:2.4
 BuildRequires:	pam-devel >= 0.80
 BuildRequires:	pkgconfig
 BuildRequires:	polkit-devel >= 0.92
-BuildRequires:	rpmbuild(macros) >= 1.268
+BuildRequires:	rpmbuild(macros) >= 1.623
 BuildRequires:	xmlto
 BuildRequires:	xorg-lib-libX11-devel >= 1.0.0
 BuildRequires:	zlib-devel
@@ -126,7 +126,7 @@ systemd units for ConsoleKit.
 	--enable-static \
 	--with-pam-module-dir=/%{_lib}/security \
 	--with-pid-file=%{_localstatedir}/run/console-kit-daemon.pid \
-	--with-systemdsystemunitdir=/lib/systemd/system
+	--with-systemdsystemunitdir=%{systemdunitdir}
 
 %{__make} -j1
 
@@ -153,6 +153,15 @@ rm -rf $RPM_BUILD_ROOT
 
 %post	libs -p /sbin/ldconfig
 %postun	libs -p /sbin/ldconfig
+
+%post systemd
+%systemd_post
+
+%postun systemd
+%systemd_postun console-kit-daemon.service
+
+%preun systemd
+%systemd_preun console-kit-daemon.service
 
 %files
 %defattr(644,root,root,755)
@@ -216,12 +225,12 @@ rm -rf $RPM_BUILD_ROOT
 
 %files systemd
 %defattr(644,root,root,755)
-/lib/systemd/system/basic.target.wants/console-kit-log-system-start.service
-/lib/systemd/system/console-kit-daemon.service
-/lib/systemd/system/console-kit-log-system-restart.service
-/lib/systemd/system/console-kit-log-system-start.service
-/lib/systemd/system/console-kit-log-system-stop.service
-/lib/systemd/system/halt.target.wants/console-kit-log-system-stop.service
-/lib/systemd/system/kexec.target.wants/console-kit-log-system-restart.service
-/lib/systemd/system/poweroff.target.wants/console-kit-log-system-stop.service
-/lib/systemd/system/reboot.target.wants/console-kit-log-system-restart.service
+%{systemdunitdir}/basic.target.wants/console-kit-log-system-start.service
+%{systemdunitdir}/console-kit-daemon.service
+%{systemdunitdir}/console-kit-log-system-restart.service
+%{systemdunitdir}/console-kit-log-system-start.service
+%{systemdunitdir}/console-kit-log-system-stop.service
+%{systemdunitdir}/halt.target.wants/console-kit-log-system-stop.service
+%{systemdunitdir}/kexec.target.wants/console-kit-log-system-restart.service
+%{systemdunitdir}/poweroff.target.wants/console-kit-log-system-stop.service
+%{systemdunitdir}/reboot.target.wants/console-kit-log-system-restart.service
