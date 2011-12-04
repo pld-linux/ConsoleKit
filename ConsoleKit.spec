@@ -2,7 +2,7 @@ Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.4.5
-Release:	5
+Release:	6
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.bz2
@@ -17,7 +17,7 @@ BuildRequires:	glibc-devel >= 6:2.4
 BuildRequires:	pam-devel >= 0.80
 BuildRequires:	pkgconfig
 BuildRequires:	polkit-devel >= 0.92
-BuildRequires:	rpmbuild(macros) >= 1.623
+BuildRequires:	rpmbuild(macros) >= 1.626
 BuildRequires:	xmlto
 BuildRequires:	xorg-lib-libX11-devel >= 1.0.0
 BuildRequires:	zlib-devel
@@ -111,6 +111,7 @@ Narzędzia obsługujące sesje X11 dla pakietu ConsoleKit.
 Summary:	systemd units for ConsoleKit
 Group:		Daemons
 Requires:	%{name} = %{version}-%{release}
+Requires:	systemd-units >= 37-0.10
 
 %description systemd
 systemd units for ConsoleKit.
@@ -155,13 +156,13 @@ rm -rf $RPM_BUILD_ROOT
 %postun	libs -p /sbin/ldconfig
 
 %post systemd
-%systemd_post
-
-%postun systemd
-%systemd_postun console-kit-daemon.service
+%systemd_post console-kit-daemon.service
 
 %preun systemd
 %systemd_preun console-kit-daemon.service
+
+%postun systemd
+%systemd_reload
 
 %files
 %defattr(644,root,root,755)
