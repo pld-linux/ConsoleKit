@@ -2,11 +2,12 @@ Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.4.5
-Release:	6
+Release:	7
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.bz2
 # Source0-md5:	f2657f93761206922d558471a936fbc3
+Source1:	%{name}.tmpfiles
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
 BuildRequires:	dbus-glib-devel >= 0.82
 BuildRequires:	docbook-dtd412-xml
@@ -133,6 +134,8 @@ systemd units for ConsoleKit.
 
 %install
 rm -rf $RPM_BUILD_ROOT
+install -d $RPM_BUILD_ROOT/usr/lib/tmpfiles.d
+
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
@@ -141,6 +144,8 @@ install -d $RPM_BUILD_ROOT/etc/init
 for a in ck-log-system-{start,stop,restart}; do
 	cp -p data/$a $RPM_BUILD_ROOT/etc/init/$a.conf
 done
+
+install %{SOURCE1} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/%{name}.conf
 
 %{__rm} $RPM_BUILD_ROOT/%{_lib}/security/*.{a,la}
 
@@ -196,6 +201,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files dirs
 %defattr(644,root,root,755)
+/usr/lib/tmpfiles.d/%{name}.conf
 %dir %{_sysconfdir}/ConsoleKit
 %dir %{_sysconfdir}/ConsoleKit/run-session.d
 %dir %{_sysconfdir}/ConsoleKit/run-seat.d
