@@ -2,7 +2,7 @@ Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.4.5
-Release:	8
+Release:	9
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.bz2
@@ -29,6 +29,8 @@ Requires:	dbus-glib >= 0.82
 Requires:	filesystem >= 3.0-25
 Requires:	glib2 >= 1:2.14.0
 Requires:	rc-scripts >= 0.4.3.0
+Requires:	systemd-units >= 37-0.10
+Obsoletes:	ConsoleKit-systemd
 Suggests:	udev-acl
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -108,15 +110,6 @@ X11 session support utilities for ConsoleKit.
 %description x11 -l pl.UTF-8
 Narzędzia obsługujące sesje X11 dla pakietu ConsoleKit.
 
-%package systemd
-Summary:	systemd units for ConsoleKit
-Group:		Daemons
-Requires:	%{name} = %{version}-%{release}
-Requires:	systemd-units >= 37-0.10
-
-%description systemd
-systemd units for ConsoleKit.
-
 %prep
 %setup -q
 
@@ -160,14 +153,17 @@ rm -rf $RPM_BUILD_ROOT
 %post	libs -p /sbin/ldconfig
 %postun	libs -p /sbin/ldconfig
 
-%post systemd
+%post
 %systemd_post console-kit-daemon.service
 
-%preun systemd
+%preun
 %systemd_preun console-kit-daemon.service
 
-%postun systemd
+%postun
 %systemd_reload
+
+%triggerpostun -- ConsoleKit < 0.4.5-9
+%systemd_trigger console-kit-daemon.service
 
 %files
 %defattr(644,root,root,755)
@@ -193,6 +189,15 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %verify(not md5 mtime size) /etc/init/ck-log-system-stop.conf
 %{_sysconfdir}/ConsoleKit/seats.d/00-primary.seat
 %{_mandir}/man8/pam_ck_connector.8*
+%{systemdunitdir}/basic.target.wants/console-kit-log-system-start.service
+%{systemdunitdir}/console-kit-daemon.service
+%{systemdunitdir}/console-kit-log-system-restart.service
+%{systemdunitdir}/console-kit-log-system-start.service
+%{systemdunitdir}/console-kit-log-system-stop.service
+%{systemdunitdir}/halt.target.wants/console-kit-log-system-stop.service
+%{systemdunitdir}/kexec.target.wants/console-kit-log-system-restart.service
+%{systemdunitdir}/poweroff.target.wants/console-kit-log-system-stop.service
+%{systemdunitdir}/reboot.target.wants/console-kit-log-system-restart.service
 
 %files libs
 %defattr(644,root,root,755)
@@ -229,15 +234,3 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/ck-get-x11-server-pid
 %attr(755,root,root) %{_libdir}/ck-get-x11-display-device
-
-%files systemd
-%defattr(644,root,root,755)
-%{systemdunitdir}/basic.target.wants/console-kit-log-system-start.service
-%{systemdunitdir}/console-kit-daemon.service
-%{systemdunitdir}/console-kit-log-system-restart.service
-%{systemdunitdir}/console-kit-log-system-start.service
-%{systemdunitdir}/console-kit-log-system-stop.service
-%{systemdunitdir}/halt.target.wants/console-kit-log-system-stop.service
-%{systemdunitdir}/kexec.target.wants/console-kit-log-system-restart.service
-%{systemdunitdir}/poweroff.target.wants/console-kit-log-system-stop.service
-%{systemdunitdir}/reboot.target.wants/console-kit-log-system-restart.service
