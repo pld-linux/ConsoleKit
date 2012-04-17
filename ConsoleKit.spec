@@ -2,7 +2,7 @@ Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.4.5
-Release:	9
+Release:	10
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.bz2
@@ -23,13 +23,14 @@ BuildRequires:	xmlto
 BuildRequires:	xorg-lib-libX11-devel >= 1.0.0
 BuildRequires:	zlib-devel
 Requires(post,preun):	/sbin/chkconfig
+Requires(post,preun,postun):	systemd-units >= 38
 Requires:	%{name}-dirs = %{version}-%{release}
 Requires:	%{name}-libs = %{version}-%{release}
 Requires:	dbus-glib >= 0.82
 Requires:	filesystem >= 3.0-25
 Requires:	glib2 >= 1:2.14.0
 Requires:	rc-scripts >= 0.4.3.0
-Requires:	systemd-units >= 37-0.10
+Requires:	systemd-units >= 38
 Obsoletes:	ConsoleKit-systemd
 Suggests:	udev-acl
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
