@@ -1,0 +1,1279 @@
+diff --git a/NEWS b/NEWS
+index 81c3225..cf06a31 100644
+--- a/NEWS
++++ b/NEWS
+@@ -1,4 +1,11 @@
+ ==============
++Version 0.4.5
++==============
++
++ * Loop around opening /dev/console to deal with BKL-less kernels (Colin Watson)
++ * systemd fixes (Lennart Poettering)
++
++==============
+ Version 0.4.4
+ ==============
+ 
+diff --git a/configure.ac b/configure.ac
+index 0efc489..7a3b33f 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1,7 +1,7 @@
+ 
+-AC_PREREQ(2.59c)
++AC_PREREQ([2.68])
+ AC_INIT([ConsoleKit],
+-        [0.4.5],
++        [0.4.6],
+         [https://bugs.freedesktop.org/enter_bug.cgi?product=ConsoleKit],
+         [ConsoleKit])
+ 
+@@ -12,13 +12,14 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+ AM_MAINTAINER_MODE
+ 
+ # for O_NOFOLLOW support
+-AC_GNU_SOURCE
++AC_USE_SYSTEM_EXTENSIONS
+ 
+-AC_ISC_POSIX
++AC_SEARCH_LIBS([strerror],[cposix])
+ AC_PROG_CC
+-AC_STDC_HEADERS
++AM_PROG_CC_C_O
++AC_HEADER_STDC
+ AC_DISABLE_STATIC
+-AC_PROG_LIBTOOL
++LT_INIT
+ 
+ AC_HEADER_STDC
+ 
+@@ -88,50 +89,15 @@ case "$host" in
+ 	;;
+ esac
+ 
+-# Find out the version of DBUS we're using
+-
+-dbus_version=`pkg-config --modversion dbus-1`
+-DBUS_VERSION_MAJOR=`echo $dbus_version | awk -F. '{print $1}'`
+-DBUS_VERSION_MINOR=`echo $dbus_version | awk -F. '{print $2}'`
+-DBUS_VERSION_MICRO=`echo $dbus_version | awk -F. '{print $3}'`
+-if test "z$DBUS_VERSION_MAJOR" = "z"; then
+-        DBUS_VERSION_MAJOR="0"
+-fi
+-if test "z$DBUS_VERSION_MINOR" = "z"; then
+-        DBUS_VERSION_MINOR="0"
+-fi
+-if test "z$DBUS_VERSION_MICRO" = "z"; then
+-        DBUS_VERSION_MICRO="0"
+-fi
+-
+-if test "z$DBUS_VERSION_MAJOR" = "z0" -a "z$DBUS_VERSION_MINOR" = "z0" -a "z$DBUS_VERSION_MICRO" = "z0"; then        echo "Error: Couldn't determine the version of your DBUS package."
+-        echo "  This is probably an error in this script, please report it"
+-        echo "  along with the following information:"
+-        echo "      Base DBUS version ='$dbus_version'"
+-        echo "      DBUS_VERSION_MAJOR='$DBUS_VERSION_MAJOR'"
+-        echo "      DBUS_VERSION_MINOR='$DBUS_VERSION_MINOR'"
+-        echo "      DBUS_VERSION_MICRO='$DBUS_VERSION_MICRO'"
+-        exit 1
+-else
+-
+-        echo "Your dbus version is $DBUS_VERSION_MAJOR,$DBUS_VERSION_MINOR,$DBUS_VERSION_MICRO."
+-        DBUS_CFLAGS="$DBUS_CFLAGS -DDBUS_VERSION_MAJOR=$DBUS_VERSION_MAJOR"
+-        DBUS_CFLAGS="$DBUS_CFLAGS -DDBUS_VERSION_MINOR=$DBUS_VERSION_MINOR"
+-        DBUS_CFLAGS="$DBUS_CFLAGS -DDBUS_VERSION_MICRO=$DBUS_VERSION_MICRO"
+-
+-        AC_SUBST(DBUS_CFLAGS)
+-fi
+ 
+ dnl ---------------------------------------------------------------------------
+ dnl - Are we specifying a different dbus root ?
+ dnl ---------------------------------------------------------------------------
+ 
+ AC_ARG_WITH(dbus-sys,
+-	[AC_HELP_STRING([--with-dbus-sys=<dir>],
+-	[where D-BUS system.d directory is])])
++	[AS_HELP_STRING([--with-dbus-sys=<dir>],[where D-BUS system.d directory is])])
+ AC_ARG_WITH(dbus-services,
+-	[AC_HELP_STRING([--with-dbus-services=<dir>],
+-	[where D-BUS services directory is])])
++	[AS_HELP_STRING([--with-dbus-services=<dir>],[where D-BUS services directory is])])
+ if ! test -z "$with_dbus_sys" ; then
+         DBUS_SYS_DIR="$with_dbus_sys"
+ else
+@@ -158,8 +124,7 @@ dnl - PID file
+ dnl ---------------------------------------------------------------------------
+ 
+ AC_ARG_WITH(pid-file,
+-	[AC_HELP_STRING([--with-pid-file=<file>],
+-	[pid file location])])
++	[AS_HELP_STRING([--with-pid-file=<file>],[pid file location])])
+ 
+ if ! test -z "$with_pid_file"; then
+    CONSOLE_KIT_PID_FILE=$with_pid_file
+@@ -190,6 +155,9 @@ case "$host" in
+         *-*-solaris*)
+         CK_BACKEND="solaris"
+         ;;
++        *-*-gnu*)
++        CK_BACKEND="gnu"
++        ;;
+ 	*)
+ 	AC_MSG_ERROR([No sysdeps back-end implemented for host $host])
+ 	;;
+@@ -200,6 +168,7 @@ AC_SUBST(KVM_LIBS)
+ AM_CONDITIONAL(CK_COMPILE_LINUX, test x$CK_BACKEND = xlinux, [Compiling for Linux])
+ AM_CONDITIONAL(CK_COMPILE_FREEBSD, test x$CK_BACKEND = xfreebsd, [Compiling for FreeBSD])
+ AM_CONDITIONAL(CK_COMPILE_SOLARIS, test x$CK_BACKEND = xsolaris, [Compiling for Solaris])
++AM_CONDITIONAL(CK_COMPILE_GNU, test x$CK_BACKEND = xgnu, [Compiling for GNU])
+ AC_SUBST(CK_BACKEND)
+ 
+ dnl ---------------------------------------------------------------------------
+@@ -221,8 +190,7 @@ AC_CHECK_LIB(pam, pam_syslog, [AC_DEFINE(HAVE_PAM_SYSLOG, [], [Define to 1 if yo
+ # Check if we should build the PAM module
+ msg_pam_module=no
+ AC_ARG_ENABLE(pam-module,
+-	[AC_HELP_STRING([--enable-pam-module],
+-	[build PAM module])],
++	[AS_HELP_STRING([--enable-pam-module],[build PAM module])],
+         , enable_pam_module=no)
+ if test "x$enable_pam_module" = "xyes"; then
+ 	if test "x$have_pam" = "xno"; then
+@@ -233,13 +201,32 @@ if test "x$enable_pam_module" = "xyes"; then
+ fi
+ AM_CONDITIONAL(ENABLE_PAM_MODULE, test "x$enable_pam_module" = "xyes")
+ 
++dnl ------------------------------------------------------------------------------
++dnl udev-acl - apply ACLs for users with local forground sessions
++dnl ------------------------------------------------------------------------------
++AC_ARG_ENABLE([udev-acl],
++	AS_HELP_STRING([--enable-udev-acl], [enable local user acl permissions support @<:@default=disabled@:>@]),
++	[], [enable_udev_acl=no])
++AS_IF([test "x$enable_udev_acl" = "xyes"], [
++
++	PKG_CHECK_MODULES([UDEV_ACL], [glib-2.0 >= 2.22.0 gobject-2.0 >= 2.22.0 libudev])
++	AC_CHECK_LIB([acl], [acl_init], [UDEV_ACL_LIBS="$UDEV_ACL_LIBS -lacl"], AC_MSG_ERROR([libacl not found]))
++	AC_CHECK_HEADER([acl/libacl.h], [:], AC_MSG_ERROR([libacl header not found]))
++	UDEVDIR=`$PKG_CONFIG --variable udevdir udev`
++	if test -z "$UDEVDIR" ; then
++		UDEVDIR="/lib/udev"
++	fi
++	AC_SUBST(UDEVDIR)
++])
++AM_CONDITIONAL([ENABLE_UDEV_ACL], [test "x$enable_udev_acl" = "xyes"])
++
++
+ dnl ---------------------------------------------------------------------------
+ dnl - Install directory for PAM security module
+ dnl ---------------------------------------------------------------------------
+ 
+ AC_ARG_WITH(pam-module-dir,
+-	[AC_HELP_STRING([--with-pam-module-dir=<dir>],
+-	[directory to install PAM security module])])
++	[AS_HELP_STRING([--with-pam-module-dir=<dir>],[directory to install PAM security module])])
+ if ! test -z "$with_pam_module_dir"; then
+ 	PAM_MODULE_DIR="$with_pam_module_dir"
+ else
+@@ -252,8 +239,7 @@ dnl - DocBook Documentation
+ dnl ---------------------------------------------------------------------------
+ 
+ AC_ARG_ENABLE(docbook-docs,
+-	[AC_HELP_STRING([--enable-docbook-docs],
+-	[build documentation (requires xmlto)])],
++	[AS_HELP_STRING([--enable-docbook-docs],[build documentation (requires xmlto)])],
+ 	enable_docbook_docs=$enableval,enable_docbook_docs=no)
+ AC_PATH_PROG(XMLTO, xmlto, no)
+ AC_MSG_CHECKING([whether to build DocBook documentation])
+@@ -308,8 +294,7 @@ dnl ---------------------------------------------------------------------------
+ 
+ msg_rbac_shutdown=no
+ AC_ARG_ENABLE(rbac-shutdown,
+-	[AC_HELP_STRING([--enable-rbac-shutdown=<key>],
+-	[Build with RBAC support specifying shutdown/reboot RBAC authentication key])],
++	[AS_HELP_STRING([--enable-rbac-shutdown=<key>],[Build with RBAC support specifying shutdown/reboot RBAC authentication key])],
+ 	enable_rbac_shutdown=$enableval,enable_rbac_shutdown=no)
+ if test "x$enable_rbac_shutdown" != "xno"; then
+ 	RBAC_LIBS="-lsecdb -lsocket -lnsl"
+@@ -326,8 +311,7 @@ dnl ---------------------------------------------------------------------------
+ # Turn on the additional warnings last, so -Werror doesn't affect other tests.
+ 
+ AC_ARG_ENABLE(more-warnings,
+-	[AC_HELP_STRING([--enable-more-warnings],
+-	[Maximum compiler warnings])],
++	[AS_HELP_STRING([--enable-more-warnings],[Maximum compiler warnings])],
+ 	set_more_warnings="$enableval",[
+         	if test -d $srcdir/.git; then
+         		set_more_warnings=yes
+@@ -349,9 +333,7 @@ if test "$GCC" = "yes" -a "$set_more_warnings" != "no"; then
+                 SAVE_CFLAGS="$CFLAGS"
+                 CFLAGS="$CFLAGS $option"
+                 AC_MSG_CHECKING([whether gcc understands $option])
+-                AC_TRY_COMPILE([], [],
+-                        has_option=yes,
+-                        has_option=no,)
++                AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[has_option=yes],[has_option=no])
+                 if test $has_option = no; then
+                         CFLAGS="$SAVE_CFLAGS"
+                 fi
+@@ -368,8 +350,7 @@ fi
+ # Enable Debug
+ #
+ AC_ARG_ENABLE(debug,
+-	[AC_HELP_STRING([--enable-debug],
+-	[turn on debugging])],
++	[AS_HELP_STRING([--enable-debug],[turn on debugging])],
+ 	, enable_debug=yes)
+ if test "$enable_debug" = "yes"; then
+ 	DEBUG_CFLAGS="-DG_ENABLE_DEBUG"
+@@ -395,10 +376,9 @@ AC_SUBST(LDFLAGS)
+ 
+ AC_ARG_WITH([systemdsystemunitdir],
+         AS_HELP_STRING([--with-systemdsystemunitdir=DIR], [Directory for systemd service files]),
+-        [],
+-        [with_systemdsystemunitdir=$($PKG_CONFIG --variable=systemdsystemunitdir systemd)])
+-AC_SUBST([systemdsystemunitdir], [$with_systemdsystemunitdir])
+-AM_CONDITIONAL(HAVE_SYSTEMD, [test -n "$with_systemdsystemunitdir"])
++        [], [with_systemdsystemunitdir=$($PKG_CONFIG --variable=systemdsystemunitdir systemd)])
++AS_IF([test "x$with_systemdsystemunitdir" != "xno"], [ AC_SUBST([systemdsystemunitdir], [$with_systemdsystemunitdir])])
++AM_CONDITIONAL(HAVE_SYSTEMD, [test -n "$with_systemdsystemunitdir" -a "x$with_systemdsystemunitdir" != "xno"])
+ 
+ # Files
+ 
+@@ -445,6 +425,7 @@ echo "
+         Build backend:            ${CK_BACKEND}
+         PAM module dir:           ${PAM_MODULE_DIR}
+         Build PAM module:         ${msg_pam_module}
++        Build udev-acl:           ${enable_udev_acl}
+         Build docs:               ${enable_docbook_docs}
+ 
+         PolicyKit support         ${have_polkit}
+diff --git a/pam-ck-connector/pam-ck-connector.c b/pam-ck-connector/pam-ck-connector.c
+index 9bdef51..949a9b0 100644
+--- a/pam-ck-connector/pam-ck-connector.c
++++ b/pam-ck-connector/pam-ck-connector.c
+@@ -244,12 +244,12 @@ pam_sm_open_session (pam_handle_t *pamh,
+         const char *s;
+         uid_t       uid;
+         char        buf[256];
+-        char        ttybuf[PATH_MAX];
++        char       *ttybuf;
+         DBusError   error;
+         dbus_bool_t is_local;
+ 
+         ret = PAM_IGNORE;
+-
++        ttybuf = NULL;
+         is_local = TRUE;
+ 
+         _parse_pam_args (pamh, flags, argc, argv);
+@@ -295,7 +295,13 @@ pam_sm_open_session (pam_handle_t *pamh,
+                 x11_display = display_device;
+                 display_device = "";
+         } else if (strncmp (_PATH_DEV, display_device, 5) != 0) {
+-                snprintf (ttybuf, sizeof (ttybuf), _PATH_DEV "%s", display_device);
++                int len = strlen (_PATH_DEV) + strlen (display_device) + 1;
++                ttybuf = malloc (len);
++                if (ttybuf == NULL) {
++                        ck_pam_syslog (pamh, LOG_ERR, "oom allocating ttybuf");
++                        goto out;
++                }
++                snprintf (ttybuf, len, _PATH_DEV "%s", display_device);
+                 display_device = ttybuf;
+         }
+ 
+@@ -411,6 +417,8 @@ pam_sm_open_session (pam_handle_t *pamh,
+         ret = PAM_SUCCESS;
+ 
+ out:
++        free (ttybuf);
++
+         return ret;
+ }
+ 
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 869decd..217e531 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -57,11 +57,18 @@ libck_la_SOURCES +=		\
+ 	$(NULL)
+ libck_la_LIBADD = $(KVM_LIBS)
+ endif
++if CK_COMPILE_GNU
++libck_la_SOURCES +=		\
++	ck-sysdeps-gnu.c	\
++	$(NULL)
++libck_la_LIBADD = -lps
++endif
+ 
+ EXTRA_libck_la_SOURCES =		\
+ 	ck-sysdeps-linux.c		\
+ 	ck-sysdeps-solaris.c		\
+ 	ck-sysdeps-freebsd.c		\
++	ck-sysdeps-gnu.c		\
+ 	$(NULL)
+ 
+ sbin_PROGRAMS = 		\
+diff --git a/src/ck-sysdeps-gnu.c b/src/ck-sysdeps-gnu.c
+new file mode 100644
+index 0000000..254f7ef
+--- /dev/null
++++ b/src/ck-sysdeps-gnu.c
+@@ -0,0 +1,402 @@
++/* -*- Mode: C; tab-width: 8; indent-tabs-mode: nil; c-basic-offset: 8 -*-
++ *
++ * Copyright (C) 2009 Pino Toscano <pino@kde.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
++ *
++ */
++
++#include "config.h"
++
++#include <stdlib.h>
++#include <stdio.h>
++#include <unistd.h>
++#include <string.h>
++#include <errno.h>
++
++#include <hurd.h>
++#include <dirent.h>
++#include <ps.h>
++#include <ttyent.h>
++
++#ifdef HAVE_PATHS_H
++#include <paths.h>
++#endif /* HAVE_PATHS_H */
++
++#include "ck-sysdeps.h"
++
++struct _CkProcessStat
++{
++        struct proc_stat *ps;           /* the statistics of a process */
++};
++
++static struct ps_context *pc = NULL;
++
++static gboolean
++get_proc_stat_from_pid (pid_t              pid,
++                        ps_flags_t         flags,
++                        struct proc_stat **res_ps)
++{
++        error_t           err;
++        struct proc_stat *ps;
++
++        g_assert (pid >= 0);
++        g_assert (res_ps != NULL);
++
++        if (pc == NULL) {
++                err = ps_context_create (getproc (), &pc);
++                if (err) {
++                    return FALSE;
++                }
++        }
++
++        err = _proc_stat_create (pid, pc, &ps);
++        if (err) {
++                return FALSE;
++        }
++
++        err = proc_stat_set_flags (ps, PSTAT_PID | flags);
++        if (err) {
++                return FALSE;
++        }
++
++        *res_ps = ps;
++        return TRUE;
++}
++
++
++pid_t
++ck_process_stat_get_ppid (CkProcessStat *stat)
++{
++        g_return_val_if_fail (stat != NULL, -1);
++
++        return proc_stat_pid (stat->ps);
++}
++
++char *
++ck_process_stat_get_cmd (CkProcessStat *stat)
++{
++        g_return_val_if_fail (stat != NULL, NULL);
++
++        return g_strdup (proc_stat_args (stat->ps));
++}
++
++char *
++ck_process_stat_get_tty (CkProcessStat *stat)
++{
++        struct ps_tty    *tty;
++
++        g_return_val_if_fail (stat != NULL, NULL);
++
++        tty = proc_stat_tty (stat->ps);
++
++        return tty ? g_strdup (ps_tty_name (tty)) : NULL;
++}
++
++gboolean
++ck_process_stat_new_for_unix_pid (pid_t           pid,
++                                  CkProcessStat **stat,
++                                  GError        **error)
++{
++        gboolean          res;
++        struct proc_stat *ps;
++        CkProcessStat    *proc;
++
++        g_return_val_if_fail (pid > 1, FALSE);
++
++        if (stat == NULL) {
++                return FALSE;
++        }
++
++        *stat = NULL;
++
++        res = get_proc_stat_from_pid (pid, PSTAT_ARGS | PSTAT_TTY, &ps);
++        if (!res) {
++                return FALSE;
++        }
++
++        proc = g_new0 (CkProcessStat, 1);
++        proc->ps = ps;
++        *stat = proc;
++
++        return TRUE;
++}
++
++void
++ck_process_stat_free (CkProcessStat *stat)
++{
++        _proc_stat_free (stat->ps);
++
++        g_free (stat);
++}
++
++GHashTable *
++ck_unix_pid_get_env_hash (pid_t pid)
++{
++        struct proc_stat *ps;
++        char             *env_p;
++        size_t            env_index;
++        size_t            env_l;
++        gboolean          res;
++        GHashTable       *hash;
++
++        g_return_val_if_fail (pid > 1, NULL);
++
++        res = get_proc_stat_from_pid (pid, PSTAT_ENV, &ps);
++        if (!res) {
++                return NULL;
++        }
++
++        hash = g_hash_table_new_full (g_str_hash,
++                                      g_str_equal,
++                                      g_free,
++                                      g_free);
++
++        env_index = 0;
++        env_l = 0;
++        env_p = proc_stat_env (ps);
++        while (env_index < proc_stat_env_len (ps)) {
++                env_l = strlen (env_p);
++                env_index += env_l + 1;
++                if (env_l) {
++                        char **vals;
++                        vals = g_strsplit (env_p, "=", 2);
++                        if (vals != NULL) {
++                                g_hash_table_insert (hash,
++                                                     g_strdup (vals[0]),
++                                                     g_strdup (vals[1]));
++                                g_strfreev (vals);
++                        }
++                }
++                env_p = env_p + env_l + 1;
++        }
++
++        _proc_stat_free (ps);
++
++        return hash;
++}
++
++char *
++ck_unix_pid_get_env (pid_t       pid,
++                     const char *var)
++{
++        struct proc_stat *ps;
++        char             *env_p;
++        size_t            env_index;
++        size_t            env_l;
++        char             *prefix;
++        int               prefix_len;
++        char             *val;
++        gboolean          res;
++
++        g_return_val_if_fail (pid > 1, NULL);
++
++        val = NULL;
++
++        res = get_proc_stat_from_pid (pid, PSTAT_ENV, &ps);
++        if (!res) {
++                return NULL;
++        }
++
++        prefix = g_strdup_printf ("%s=", var);
++        prefix_len = strlen (prefix);
++
++        env_index = 0;
++        env_l = 0;
++        env_p = proc_stat_env (ps);
++        while (env_index < proc_stat_env_len (ps)) {
++                env_l = strlen (env_p);
++                env_index += env_l + 1;
++                if (env_l && g_str_has_prefix (env_p, prefix)) {
++                        val = g_strdup (env_p + prefix_len);
++                        break;
++                }
++                env_p = env_p + env_l + 1;
++        }
++
++        g_free (prefix);
++
++        _proc_stat_free (ps);
++
++        return val;
++}
++
++uid_t
++ck_unix_pid_get_uid (pid_t pid)
++{
++        struct proc_stat *ps;
++        gboolean          res;
++        uid_t             uid;
++
++        g_return_val_if_fail (pid > 1, 0);
++
++        res = get_proc_stat_from_pid (pid, PSTAT_OWNER_UID, &ps);
++        if (!res) {
++                return 0;
++        }
++
++        uid = proc_stat_owner_uid (ps);
++
++        _proc_stat_free (ps);
++
++        return uid;
++}
++
++pid_t
++ck_unix_pid_get_ppid (pid_t pid)
++{
++        struct proc_stat *ps;
++        gboolean          res;
++        pid_t             ppid;
++
++        g_return_val_if_fail (pid > 1, 0);
++
++        res = get_proc_stat_from_pid (pid, PSTAT_PROC_INFO, &ps);
++        if (!res) {
++                return 0;
++        }
++
++        ppid = proc_stat_proc_info (ps)->ppid;
++
++        _proc_stat_free (ps);
++
++        return ppid;
++}
++
++gboolean
++ck_unix_pid_get_login_session_id (pid_t  pid,
++                                  char **idp)
++{
++        g_return_val_if_fail (pid > 1, FALSE);
++
++        return FALSE;
++}
++
++gboolean
++ck_get_max_num_consoles (guint *num)
++{
++        int      max_consoles;
++        int      res;
++        gboolean ret;
++        struct ttyent *t;
++
++        ret = FALSE;
++        max_consoles = 0;
++
++        res = setttyent ();
++        if (res == 0) {
++                goto done;
++        }
++
++        while ((t = getttyent ()) != NULL) {
++                if (t->ty_status & TTY_ON && strncmp (t->ty_name, "tty", 3) == 0)
++                        max_consoles++;
++        }
++
++        /* Increment one more so that all consoles are properly counted
++         * this is arguable a bug in vt_add_watches().
++         */
++        max_consoles++;
++
++        ret = TRUE;
++
++        endttyent ();
++
++done:
++        if (num != NULL) {
++                *num = max_consoles;
++        }
++
++        return ret;
++}
++
++gboolean
++ck_supports_activatable_consoles (void)
++{
++        return TRUE;
++}
++
++char *
++ck_get_console_device_for_num (guint num)
++{
++        char *device;
++
++        device = g_strdup_printf (_PATH_TTY "%u", num);
++
++        return device;
++}
++
++gboolean
++ck_get_console_num_from_device (const char *device,
++                                guint      *num)
++{
++        guint    n;
++        gboolean ret;
++
++        n = 0;
++        ret = FALSE;
++
++        if (device == NULL) {
++                return FALSE;
++        }
++
++        if (sscanf (device, _PATH_TTY "%u", &n) == 1) {
++                ret = TRUE;
++        }
++
++        if (num != NULL) {
++                *num = n;
++        }
++
++        return ret;
++}
++
++gboolean
++ck_get_active_console_num (int    console_fd,
++                           guint *num)
++{
++        gboolean       ret;
++        int            res;
++        long           cur_active;
++        char           buf[30];
++        guint          active;
++
++        g_assert (console_fd != -1);
++
++        active = 0;
++        ret = FALSE;
++
++        res = readlink ("/dev/cons/vcs", buf, sizeof (buf));
++        if (res > 0) {
++                /* the resolved path is like "/dev/vcs/$number", so skip
++                   the non-number part at the start */
++                const char *p = buf;
++                while ((*p) && ((*p < '0') || (*p > '9'))) {
++                        ++p;
++                }
++                if (*p) {
++                        cur_active = strtol (p, NULL, 10);
++                        g_debug ("Current VT: tty%ld", cur_active);
++                        active = cur_active;
++                        ret = TRUE;
++                }
++        }
++
++        if (num != NULL) {
++                *num = active;
++        }
++
++        return ret;
++}
+diff --git a/tools/70-udev-acl.rules b/tools/70-udev-acl.rules
+new file mode 100644
+index 0000000..2dac283
+--- /dev/null
++++ b/tools/70-udev-acl.rules
+@@ -0,0 +1,76 @@
++# do not edit this file, it will be overwritten on update
++
++# Do not use TAG+="udev-acl" outside of this file. This variable is private to
++# udev-acl of this udev release and may be replaced at any time.
++
++ENV{MAJOR}=="", GOTO="acl_end"
++ACTION=="remove", GOTO="acl_apply"
++
++# systemd replaces udev-acl entirely, skip if active
++TEST=="/sys/fs/cgroup/systemd", TAG=="uaccess", GOTO="acl_end"
++
++# PTP/MTP protocol devices, cameras, portable media players
++SUBSYSTEM=="usb", ENV{ID_USB_INTERFACES}=="*:060101:*", TAG+="udev-acl"
++
++# digicams with proprietary protocol
++ENV{ID_GPHOTO2}=="*?", TAG+="udev-acl"
++
++# SCSI and USB scanners
++ENV{libsane_matched}=="yes", TAG+="udev-acl"
++
++# HPLIP devices (necessary for ink level check and HP tool maintenance)
++ENV{ID_HPLIP}=="1", TAG+="udev-acl"
++
++# optical drives
++SUBSYSTEM=="block", ENV{ID_CDROM}=="1", TAG+="udev-acl"
++SUBSYSTEM=="scsi_generic", SUBSYSTEMS=="scsi", ATTRS{type}=="4|5", TAG+="udev-acl"
++
++# sound devices
++SUBSYSTEM=="sound", TAG+="udev-acl"
++
++# ffado is an userspace driver for firewire sound cards
++SUBSYSTEM=="firewire", ENV{ID_FFADO}=="1", TAG+="udev-acl"
++
++# webcams, frame grabber, TV cards
++SUBSYSTEM=="video4linux", TAG+="udev-acl"
++SUBSYSTEM=="dvb", TAG+="udev-acl"
++
++# IIDC devices: industrial cameras and some webcams
++SUBSYSTEM=="firewire", ATTR{units}=="*0x00a02d:0x00010*",  TAG+="udev-acl"
++SUBSYSTEM=="firewire", ATTR{units}=="*0x00b09d:0x00010*",  TAG+="udev-acl"
++# AV/C devices: camcorders, set-top boxes, TV sets, audio devices, and more
++SUBSYSTEM=="firewire", ATTR{units}=="*0x00a02d:0x010001*", TAG+="udev-acl"
++SUBSYSTEM=="firewire", ATTR{units}=="*0x00a02d:0x014001*", TAG+="udev-acl"
++
++# DRI video devices
++SUBSYSTEM=="drm", KERNEL=="card*", TAG+="udev-acl"
++
++# KVM
++SUBSYSTEM=="misc", KERNEL=="kvm", TAG+="udev-acl"
++
++# smart-card readers
++ENV{ID_SMARTCARD_READER}=="*?", TAG+="udev-acl"
++
++# PDA devices
++ENV{ID_PDA}=="*?", TAG+="udev-acl"
++
++# Programmable remote control
++ENV{ID_REMOTE_CONTROL}=="1", TAG+="udev-acl"
++
++# joysticks
++SUBSYSTEM=="input", ENV{ID_INPUT_JOYSTICK}=="?*", TAG+="udev-acl"
++
++# color measurement devices
++ENV{COLOR_MEASUREMENT_DEVICE}=="*?", TAG+="udev-acl"
++
++# DDC/CI device, usually high-end monitors such as the DreamColor
++ENV{DDC_DEVICE}=="*?", TAG+="udev-acl"
++
++# media player raw devices (for user-mode drivers, Android SDK, etc.)
++SUBSYSTEM=="usb", ENV{ID_MEDIA_PLAYER}=="?*", TAG+="udev-acl"
++
++# apply ACL for all locally logged in users
++LABEL="acl_apply", TAG=="udev-acl", TEST=="/var/run/ConsoleKit/database", \
++  RUN+="udev-acl --action=$env{ACTION} --device=$env{DEVNAME}"
++
++LABEL="acl_end"
+diff --git a/tools/Makefile.am b/tools/Makefile.am
+index 13c191f..88f3c91 100644
+--- a/tools/Makefile.am
++++ b/tools/Makefile.am
+@@ -143,6 +143,21 @@ ck_get_x11_display_device_LDADD =	\
+ 	$(top_builddir)/src/libck.la	\
+ 	$(NULL)
+ 
++if ENABLE_UDEV_ACL
++udevdir = $(UDEVDIR)
++udevrulesdir = $(UDEVDIR)/rules.d
++
++dist_udevrules_DATA = 70-udev-acl.rules
++udev_PROGRAMS = udev-acl
++
++udev_acl_SOURCES = udev-acl.c
++udev_acl_LDADD = $(UDEV_ACL_LIBS)
++udev_acl_CFLAGS = $(UDEV_ACL_CFLAGS)
++
++install-exec-hook:
++	mkdir -p $(DESTDIR)$(prefix)/lib/ConsoleKit/run-seat.d
++	ln -sf $(UDEVDIR)/udev-acl $(DESTDIR)$(prefix)/lib/ConsoleKit/run-seat.d/udev-acl.ck
++endif
+ 
+ EXTRA_DIST =				\
+ 	$(NULL)
+diff --git a/tools/ck-history.c b/tools/ck-history.c
+index d02caaa..85d9e6f 100644
+--- a/tools/ck-history.c
++++ b/tools/ck-history.c
+@@ -804,7 +804,7 @@ generate_report_frequent (int         uid,
+                 data = user_counts->data;
+ 
+                 username = get_user_name_for_uid (data->uid);
+-                g_print ("%-8.8s %u\n", username, data->count);
++                g_print ("%-8s %u\n", username, data->count);
+                 g_free (data);
+                 user_counts = g_list_delete_link (user_counts, user_counts);
+                 g_free (username);
+diff --git a/tools/udev-acl.c b/tools/udev-acl.c
+new file mode 100644
+index 0000000..628cfbe
+--- /dev/null
++++ b/tools/udev-acl.c
+@@ -0,0 +1,430 @@
++/*
++ * Copyright (C) 2009 Kay Sievers <kay.sievers@vrfy.org>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of the
++ * License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details:
++ */
++
++#include <acl/libacl.h>
++#include <sys/stat.h>
++#include <errno.h>
++#include <getopt.h>
++#include <glib.h>
++#include <inttypes.h>
++#include <libudev.h>
++#include <stdbool.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++
++static int debug;
++
++enum{
++        ACTION_NONE = 0,
++        ACTION_REMOVE,
++        ACTION_ADD,
++        ACTION_CHANGE
++};
++
++static int set_facl(const char* filename, uid_t uid, int add)
++{
++        int get;
++        acl_t acl;
++        acl_entry_t entry = NULL;
++        acl_entry_t e;
++        acl_permset_t permset;
++        int ret;
++
++        /* don't touch ACLs for root */
++        if (uid == 0)
++                return 0;
++
++        /* read current record */
++        acl = acl_get_file(filename, ACL_TYPE_ACCESS);
++        if (!acl)
++                return -1;
++
++        /* locate ACL_USER entry for uid */
++        get = acl_get_entry(acl, ACL_FIRST_ENTRY, &e);
++        while (get == 1) {
++                acl_tag_t t;
++
++                acl_get_tag_type(e, &t);
++                if (t == ACL_USER) {
++                        uid_t *u;
++
++                        u = (uid_t*)acl_get_qualifier(e);
++                        if (u == NULL) {
++                                ret = -1;
++                                goto out;
++                        }
++                        if (*u == uid) {
++                                entry = e;
++                                acl_free(u);
++                                break;
++                        }
++                        acl_free(u);
++                }
++
++                get = acl_get_entry(acl, ACL_NEXT_ENTRY, &e);
++        }
++
++        /* remove ACL_USER entry for uid */
++        if (!add) {
++                if (entry == NULL) {
++                        ret = 0;
++                        goto out;
++                }
++                acl_delete_entry(acl, entry);
++                goto update;
++        }
++
++        /* create ACL_USER entry for uid */
++        if (entry == NULL) {
++                ret = acl_create_entry(&acl, &entry);
++                if (ret != 0)
++                        goto out;
++                acl_set_tag_type(entry, ACL_USER);
++                acl_set_qualifier(entry, &uid);
++        }
++
++        /* add permissions for uid */
++        acl_get_permset(entry, &permset);
++        acl_add_perm(permset, ACL_READ|ACL_WRITE);
++update:
++        /* update record */
++        if (debug)
++                printf("%c%u %s\n", add ? '+' : '-', uid, filename);
++        acl_calc_mask(&acl);
++        ret = acl_set_file(filename, ACL_TYPE_ACCESS, acl);
++        if (ret != 0)
++                goto out;
++out:
++        acl_free(acl);
++        return ret;
++}
++
++/* check if a given uid is listed */
++static int uid_in_list(GSList *list, uid_t uid)
++{
++        GSList *l;
++
++        for (l = list; l != NULL; l = g_slist_next(l))
++                if (uid == GPOINTER_TO_UINT(l->data))
++                        return 1;
++        return 0;
++}
++
++/* return list of current uids of local active sessions */
++static GSList *uids_with_local_active_session(const char *own_id)
++{
++        GSList *list = NULL;
++        GKeyFile *keyfile;
++
++        keyfile = g_key_file_new();
++        if (g_key_file_load_from_file(keyfile, "/var/run/ConsoleKit/database", 0, NULL)) {
++                gchar **groups;
++
++                groups = g_key_file_get_groups(keyfile, NULL);
++                if (groups != NULL) {
++                        int i;
++
++                        for (i = 0; groups[i] != NULL; i++) {
++                                uid_t u;
++
++                                if (!g_str_has_prefix(groups[i], "Session "))
++                                        continue;
++                                if (own_id != NULL &&g_str_has_suffix(groups[i], own_id))
++                                        continue;
++                                if (!g_key_file_get_boolean(keyfile, groups[i], "is_local", NULL))
++                                        continue;
++                                if (!g_key_file_get_boolean(keyfile, groups[i], "is_active", NULL))
++                                        continue;
++                                u = g_key_file_get_integer(keyfile, groups[i], "uid", NULL);
++                                if (u > 0 && !uid_in_list(list, u))
++                                        list = g_slist_prepend(list, GUINT_TO_POINTER(u));
++                        }
++                        g_strfreev(groups);
++                }
++        }
++        g_key_file_free(keyfile);
++
++        return list;
++}
++
++/* ConsoleKit calls us with special variables */
++static int consolekit_called(const char *ck_action, uid_t *uid, uid_t *uid2, const char **remove_session_id, int *action)
++{
++        int a = ACTION_NONE;
++        uid_t u = 0;
++        uid_t u2 = 0;
++        const char *s;
++        const char *s2;
++        const char *old_session = NULL;
++
++        if (ck_action == NULL || strcmp(ck_action, "seat_active_session_changed") != 0)
++                return -1;
++
++        /* We can have one of: remove, add, change, no-change */
++        s = getenv("CK_SEAT_OLD_SESSION_ID");
++        s2 = getenv("CK_SEAT_SESSION_ID");
++        if (s == NULL && s2 == NULL) {
++                return -1;
++        } else if (s2 == NULL) {
++                a = ACTION_REMOVE;
++        } else if (s == NULL) {
++                a = ACTION_ADD;
++        } else {
++                a = ACTION_CHANGE;
++        }
++
++        switch (a) {
++        case ACTION_ADD:
++                s = getenv("CK_SEAT_SESSION_USER_UID");
++                if (s == NULL)
++                        return -1;
++                u = strtoul(s, NULL, 10);
++
++                s = getenv("CK_SEAT_SESSION_IS_LOCAL");
++                if (s == NULL)
++                        return -1;
++                if (strcmp(s, "true") != 0)
++                        return 0;
++
++                break;
++        case ACTION_REMOVE:
++                s = getenv("CK_SEAT_OLD_SESSION_USER_UID");
++                if (s == NULL)
++                        return -1;
++                u = strtoul(s, NULL, 10);
++
++                s = getenv("CK_SEAT_OLD_SESSION_IS_LOCAL");
++                if (s == NULL)
++                        return -1;
++                if (strcmp(s, "true") != 0)
++                        return 0;
++
++                old_session = getenv("CK_SEAT_OLD_SESSION_ID");
++                if (old_session == NULL)
++                        return -1;
++
++                break;
++        case ACTION_CHANGE:
++                s = getenv("CK_SEAT_OLD_SESSION_USER_UID");
++                if (s == NULL)
++                        return -1;
++                u = strtoul(s, NULL, 10);
++                s = getenv("CK_SEAT_SESSION_USER_UID");
++                if (s == NULL)
++                        return -1;
++                u2 = strtoul(s, NULL, 10);
++
++                s = getenv("CK_SEAT_OLD_SESSION_IS_LOCAL");
++                s2 = getenv("CK_SEAT_SESSION_IS_LOCAL");
++                if (s == NULL || s2 == NULL)
++                        return -1;
++                /* don't process non-local session changes */
++                if (strcmp(s, "true") != 0 && strcmp(s2, "true") != 0)
++                        return 0;
++
++                if (strcmp(s, "true") == 0 && strcmp(s, "true") == 0) {
++                        /* process the change */
++                        if (u == u2) {
++                                /* special case: we noop if we are
++                                 * changing between local sessions for
++                                 * the same uid */
++                                a = ACTION_NONE;
++                        }
++                        old_session = getenv("CK_SEAT_OLD_SESSION_ID");
++                        if (old_session == NULL)
++                                return -1;
++                } else if (strcmp(s, "true") == 0) {
++                        /* only process the removal */
++                        a = ACTION_REMOVE;
++                        old_session = getenv("CK_SEAT_OLD_SESSION_ID");
++                        if (old_session == NULL)
++                                return -1;
++                } else if (strcmp(s2, "true") == 0) {
++                        /* only process the addition */
++                        a = ACTION_ADD;
++                        u = u2;
++                }
++                break;
++        }
++
++        *remove_session_id = old_session;
++        *uid = u;
++        *uid2 = u2;
++        *action = a;
++        return 0;
++}
++
++/* add or remove a ACL for a given uid from all matching devices */
++static void apply_acl_to_devices(uid_t uid, int add)
++{
++        struct udev *udev;
++        struct udev_enumerate *enumerate;
++        struct udev_list_entry *list_entry;
++
++        /* iterate over all devices tagged with ACL_SET */
++        udev = udev_new();
++        enumerate = udev_enumerate_new(udev);
++        udev_enumerate_add_match_tag(enumerate, "udev-acl");
++        udev_enumerate_scan_devices(enumerate);
++        udev_list_entry_foreach(list_entry, udev_enumerate_get_list_entry(enumerate)) {
++                struct udev_device *device;
++                const char *node;
++
++                device = udev_device_new_from_syspath(udev_enumerate_get_udev(enumerate),
++                                                      udev_list_entry_get_name(list_entry));
++                if (device == NULL)
++                        continue;
++                node = udev_device_get_devnode(device);
++                if (node == NULL) {
++                        udev_device_unref(device);
++                        continue;
++                }
++                set_facl(node, uid, add);
++                udev_device_unref(device);
++        }
++        udev_enumerate_unref(enumerate);
++        udev_unref(udev);
++}
++
++static void
++remove_uid (uid_t uid, const char *remove_session_id)
++{
++        /*
++         * Remove ACL for given uid from all matching devices
++         * when there is currently no local active session.
++         */
++        GSList *list;
++
++        list = uids_with_local_active_session(remove_session_id);
++        if (!uid_in_list(list, uid))
++                apply_acl_to_devices(uid, 0);
++        g_slist_free(list);
++}
++
++int main (int argc, char* argv[])
++{
++        static const struct option options[] = {
++                { "action", required_argument, NULL, 'a' },
++                { "device", required_argument, NULL, 'D' },
++                { "user", required_argument, NULL, 'u' },
++                { "debug", no_argument, NULL, 'd' },
++                { "help", no_argument, NULL, 'h' },
++                {}
++        };
++        int action = -1;
++        const char *device = NULL;
++        bool uid_given = false;
++        uid_t uid = 0;
++        uid_t uid2 = 0;
++        const char* remove_session_id = NULL;
++        int rc = 0;
++
++        /* valgrind is more important to us than a slice allocator */
++        g_slice_set_config (G_SLICE_CONFIG_ALWAYS_MALLOC, 1);
++
++        while (1) {
++                int option;
++
++                option = getopt_long(argc, argv, "+a:D:u:dh", options, NULL);
++                if (option == -1)
++                        break;
++
++                switch (option) {
++                case 'a':
++                        if (strcmp(optarg, "remove") == 0)
++                                action = ACTION_REMOVE;
++                        else
++                                action = ACTION_ADD;
++                        break;
++                case 'D':
++                        device = optarg;
++                        break;
++                case 'u':
++                        uid_given = true;
++                        uid = strtoul(optarg, NULL, 10);
++                        break;
++                case 'd':
++                        debug = 1;
++                        break;
++                case 'h':
++                        printf("Usage: udev-acl --action=ACTION [--device=DEVICEFILE] [--user=UID]\n\n");
++                        goto out;
++                }
++        }
++
++        if (action < 0 && device == NULL && !uid_given)
++                if (!consolekit_called(argv[optind], &uid, &uid2, &remove_session_id, &action))
++                        uid_given = true;
++
++        if (action < 0) {
++                fprintf(stderr, "missing action\n\n");
++                rc = 2;
++                goto out;
++        }
++
++        if (device != NULL && uid_given) {
++                fprintf(stderr, "only one option, --device=DEVICEFILE or --user=UID expected\n\n");
++                rc = 3;
++                goto out;
++        }
++
++        if (uid_given) {
++                switch (action) {
++                case ACTION_ADD:
++                        /* Add ACL for given uid to all matching devices. */
++                        apply_acl_to_devices(uid, 1);
++                        break;
++                case ACTION_REMOVE:
++                        remove_uid(uid, remove_session_id);
++                        break;
++                case ACTION_CHANGE:
++                        remove_uid(uid, remove_session_id);
++                        apply_acl_to_devices(uid2, 1);
++                        break;
++                case ACTION_NONE:
++                        goto out;
++                        break;
++                default:
++                        g_assert_not_reached();
++                        break;
++                }
++        } else if (device != NULL) {
++                /*
++                 * Add ACLs for all current session uids to a given device.
++                 *
++                 * Or remove ACLs for uids which do not have any current local
++                 * active session. Remove is not really interesting, because in
++                 * most cases the device node is removed anyway.
++                 */
++                GSList *list;
++                GSList *l;
++
++                list = uids_with_local_active_session(NULL);
++                for (l = list; l != NULL; l = g_slist_next(l)) {
++                        uid_t u;
++
++                        u = GPOINTER_TO_UINT(l->data);
++                        if (action == ACTION_ADD || !uid_in_list(list, u))
++                                set_facl(device, u, action == ACTION_ADD);
++                }
++                g_slist_free(list);
++        } else {
++                fprintf(stderr, "--device=DEVICEFILE or --user=UID expected\n\n");
++                rc = 3;
++        }
++out:
++        return rc;
++}

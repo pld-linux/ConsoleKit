@@ -2,19 +2,21 @@ Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.4.5
-Release:	10
+Release:	11
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.bz2
 # Source0-md5:	f2657f93761206922d558471a936fbc3
 Source1:	%{name}.tmpfiles
+Patch0:		%{name}-git.patch
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
 BuildRequires:	dbus-glib-devel >= 0.82
 BuildRequires:	docbook-dtd412-xml
 BuildRequires:	gettext-devel
-BuildRequires:	glib2-devel >= 1:2.14.0
+BuildRequires:	glib2-devel >= 1:2.22.0
 # for <sys/inotify.h>
 BuildRequires:	glibc-devel >= 6:2.4
+BuildRequires:	udev-devel
 BuildRequires:	pam-devel >= 0.80
 BuildRequires:	pkgconfig
 BuildRequires:	polkit-devel >= 0.92
@@ -31,8 +33,9 @@ Requires:	filesystem >= 3.0-25
 Requires:	glib2 >= 1:2.14.0
 Requires:	rc-scripts >= 0.4.3.0
 Requires:	systemd-units >= 38
+Provides:	udev-acl
+Obsoletes:	udev-acl
 Obsoletes:	ConsoleKit-systemd
-Suggests:	udev-acl
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -113,8 +116,13 @@ Narzędzia obsługujące sesje X11 dla pakietu ConsoleKit.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
+%{__libtoolize}
+%{__aclocal}
+%{__automake}
+%{__autoconf}
 %configure \
 	--disable-silent-rules \
 	--enable-docbook-docs \
@@ -122,7 +130,8 @@ Narzędzia obsługujące sesje X11 dla pakietu ConsoleKit.
 	--enable-static \
 	--with-pam-module-dir=/%{_lib}/security \
 	--with-pid-file=%{_localstatedir}/run/console-kit-daemon.pid \
-	--with-systemdsystemunitdir=%{systemdunitdir}
+	--with-systemdsystemunitdir=%{systemdunitdir} \
+	--enable-udev-acl
 
 %{__make} -j1
 
@@ -200,6 +209,10 @@ rm -rf $RPM_BUILD_ROOT
 %{systemdunitdir}/poweroff.target.wants/console-kit-log-system-stop.service
 %{systemdunitdir}/reboot.target.wants/console-kit-log-system-restart.service
 
+%attr(755,root,root) /lib/udev/udev-acl
+%attr(755,root,root) /usr/lib/ConsoleKit/run-seat.d/udev-acl.ck
+/lib/udev/rules.d/70-udev-acl.rules
+ 
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libck-connector.so.*.*.*
