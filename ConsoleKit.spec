@@ -2,7 +2,7 @@ Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.4.5
-Release:	13
+Release:	14
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.bz2
@@ -33,8 +33,9 @@ Requires:	filesystem >= 3.0-25
 Requires:	glib2 >= 1:2.14.0
 Requires:	rc-scripts >= 0.4.3.0
 Requires:	systemd-units >= 38
-Provides:	udev-acl
+Provides:	udev-acl = 1:182-1
 Obsoletes:	ConsoleKit-systemd
+Obsoletes:	udev-acl < 1:182
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
