@@ -11,7 +11,7 @@ Source1:	%{name}.tmpfiles
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
 BuildRequires:	dbus-glib-devel >= 0.82
 BuildRequires:	docbook-dtd412-xml
-BuildRequires:	gettext-devel
+BuildRequires:	gettext-tools
 BuildRequires:	glib2-devel >= 1:2.22.0
 # for <sys/inotify.h>
 BuildRequires:	glibc-devel >= 6:2.4
