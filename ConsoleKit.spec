@@ -2,7 +2,7 @@ Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.4.6
-Release:	2
+Release:	3
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.xz
@@ -142,12 +142,6 @@ install -d $RPM_BUILD_ROOT/usr/lib/tmpfiles.d
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-# The sample upstart files are good enough for us.
-install -d $RPM_BUILD_ROOT/etc/init
-for a in ck-log-system-{start,stop,restart}; do
-	cp -p data/$a $RPM_BUILD_ROOT/etc/init/$a.conf
-done
-
 install %{SOURCE1} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/%{name}.conf
 
 %{__rm} $RPM_BUILD_ROOT/%{_lib}/security/*.{a,la}
@@ -194,9 +188,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dbus-1/interfaces/org.freedesktop.ConsoleKit.Seat.xml
 %{_datadir}/dbus-1/interfaces/org.freedesktop.ConsoleKit.Session.xml
 /etc/dbus-1/system.d/ConsoleKit.conf
-%config(noreplace) %verify(not md5 mtime size) /etc/init/ck-log-system-restart.conf
-%config(noreplace) %verify(not md5 mtime size) /etc/init/ck-log-system-start.conf
-%config(noreplace) %verify(not md5 mtime size) /etc/init/ck-log-system-stop.conf
 %{_sysconfdir}/ConsoleKit/seats.d/00-primary.seat
 %{_mandir}/man8/pam_ck_connector.8*
 %{systemdunitdir}/basic.target.wants/console-kit-log-system-start.service
