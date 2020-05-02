@@ -179,7 +179,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sbindir}/ck-log-system-start
 %attr(755,root,root) %{_sbindir}/ck-log-system-stop
 %attr(755,root,root) %{_sbindir}/console-kit-daemon
-%attr(755,root,root) %{_libdir}/ck-collect-session-info
+%attr(755,root,root) %{_libexecdir}/ck-collect-session-info
 %attr(755,root,root) %{_prefix}/lib/ConsoleKit/scripts/*
 %attr(755,root,root) /%{_lib}/security/pam_ck_connector.so
 %{_datadir}/polkit-1/actions/org.freedesktop.consolekit.policy
@@ -237,5 +237,5 @@ rm -rf $RPM_BUILD_ROOT
 
 %files x11
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/ck-get-x11-server-pid
-%attr(755,root,root) %{_libdir}/ck-get-x11-display-device
+%attr(755,root,root) %{_libexecdir}/ck-get-x11-server-pid
+%attr(755,root,root) %{_libexecdir}/ck-get-x11-display-device
