@@ -142,9 +142,12 @@ install -d $RPM_BUILD_ROOT/usr/lib/tmpfiles.d
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-install %{SOURCE1} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/%{name}.conf
+cp -p %{SOURCE1} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/%{name}.conf
 
+# loadable module
 %{__rm} $RPM_BUILD_ROOT/%{_lib}/security/*.{a,la}
+# obsoleted by pkg-config
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/libck-connector.la
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -225,10 +228,8 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libck-connector.so
-%{_libdir}/libck-connector.la
 %dir %{_includedir}/ConsoleKit
-%dir %{_includedir}/ConsoleKit/ck-connector
-%{_includedir}/ConsoleKit/ck-connector/*.h
+%{_includedir}/ConsoleKit/ck-connector
 %{_pkgconfigdir}/ck-connector.pc
 
 %files static
