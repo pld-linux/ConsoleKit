@@ -19,7 +19,7 @@ BuildRequires:	udev-devel
 BuildRequires:	pam-devel >= 0.80
 BuildRequires:	pkgconfig
 BuildRequires:	polkit-devel >= 0.92
-BuildRequires:	rpmbuild(macros) >= 1.626
+BuildRequires:	rpmbuild(macros) >= 1.644
 BuildRequires:	tar >= 1:1.22
 BuildRequires:	xmlto
 BuildRequires:	xorg-lib-libX11-devel >= 1.0.0
@@ -137,12 +137,12 @@ Narzędzia obsługujące sesje X11 dla pakietu ConsoleKit.
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/usr/lib/tmpfiles.d
+install -d $RPM_BUILD_ROOT%{systemdtmpfilesdir}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT
 
-cp -p %{SOURCE1} $RPM_BUILD_ROOT/usr/lib/tmpfiles.d/%{name}.conf
+cp -p %{SOURCE1} $RPM_BUILD_ROOT%{systemdtmpfilesdir}/%{name}.conf
 
 # loadable module
 %{__rm} $RPM_BUILD_ROOT/%{_lib}/security/*.{a,la}
@@ -214,7 +214,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files dirs
 %defattr(644,root,root,755)
-/usr/lib/tmpfiles.d/%{name}.conf
+%{systemdtmpfilesdir}/ConsoleKit.conf
 %dir %{_sysconfdir}/ConsoleKit
 %dir %{_sysconfdir}/ConsoleKit/run-session.d
 %dir %{_sysconfdir}/ConsoleKit/run-seat.d
