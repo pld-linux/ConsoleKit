@@ -2,12 +2,13 @@ Summary:	ConsoleKit for PolicyKit
 Summary(pl.UTF-8):	ConsoleKit dla PolicyKit
 Name:		ConsoleKit
 Version:	0.4.6
-Release:	3
+Release:	4
 License:	GPL v2+
 Group:		Libraries
 Source0:	http://www.freedesktop.org/software/ConsoleKit/dist/%{name}-%{version}.tar.xz
 # Source0-md5:	611792b4d616253a5bdec9175f8b7678
 Source1:	%{name}.tmpfiles
+Patch0:		%{name}-gzip.patch
 URL:		http://www.freedesktop.org/wiki/Software/ConsoleKit
 BuildRequires:	dbus-glib-devel >= 0.82
 BuildRequires:	docbook-dtd412-xml
@@ -117,6 +118,7 @@ Narzędzia obsługujące sesje X11 dla pakietu ConsoleKit.
 
 %prep
 %setup -q
+%patch -P0 -p1
 
 %build
 %{__libtoolize}

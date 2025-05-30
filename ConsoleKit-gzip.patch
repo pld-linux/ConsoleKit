@@ -1,0 +1,20 @@
+--- ConsoleKit-0.4.6/tools/ck-history.c.orig	2013-07-19 06:15:28.000000000 +0200
++++ ConsoleKit-0.4.6/tools/ck-history.c	2025-05-30 21:48:28.595596284 +0200
+@@ -76,7 +76,7 @@ parse_event_line (const char *line)
+ }
+ 
+ static gboolean
+-process_log_gzstream (gzFile   *fstream,
++process_log_gzstream (gzFile   fstream,
+                       GTimeVal *since)
+ {
+         char     line[MAX_LINE_LEN];
+@@ -150,7 +150,7 @@ process_log_file (const char *filename,
+         gboolean ret;
+ 
+         if (g_str_has_suffix (filename, ".gz")) {
+-                gzFile *f;
++                gzFile f;
+                 f = gzopen (filename, "r");
+                 if (f == NULL) {
+                         int         errnum;
