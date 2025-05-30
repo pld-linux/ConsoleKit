@@ -35,7 +35,7 @@ Requires:	glib2 >= 1:2.14.0
 Requires:	rc-scripts >= 0.4.3.0
 Requires:	systemd-units >= 38
 Provides:	udev-acl = 1:182-1
-Obsoletes:	ConsoleKit-systemd
+Obsoletes:	ConsoleKit-systemd < 0.4.5-9
 Obsoletes:	udev-acl < 1:182
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
